@@ -9,8 +9,10 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -191,9 +193,14 @@ type Twitter struct {
 
 // NewTwitter constructs a twitter client wrapper using the given bearer token.
 func NewTwitter(token string) Twitter {
-	return Twitter{
-		cli: &twitter.Client{Authorize: twitter.BearerTokenAuthorizer(token)},
+	cli := &twitter.Client{Authorize: twitter.BearerTokenAuthorizer(token)}
+	b, _ := strconv.ParseBool(os.Getenv("TWITTER_DEBUG"))
+	if b {
+		cli.Log = func(tag, msg string) {
+			log.Printf("TWITTER DEBUG %s :: %s", tag, msg)
+		}
 	}
+	return Twitter{cli: cli}
 }
 
 // Updates queries Twitter for episode updates since the specified date.
