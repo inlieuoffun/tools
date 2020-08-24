@@ -100,6 +100,15 @@ func (d *Date) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (d *Date) UnmarshalYAML(node *yaml.Node) error {
+	ts, err := time.Parse(dateFormat, node.Value)
+	if err != nil {
+		return err
+	}
+	*d = Date(ts)
+	return nil
+}
+
 func (d Date) MarshalJSON() ([]byte, error) {
 	return []byte(d.String()), nil
 }
