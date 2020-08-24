@@ -7,7 +7,6 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"flag"
 	"fmt"
@@ -19,14 +18,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/creachadair/atomicfile"
 	"github.com/inlieuoffun/tools/ilof"
-	yaml "gopkg.in/yaml.v3"
 )
 
 var (
 	doDryRun = flag.Bool("dry-run", false, "Do not create or modify any files")
 	doForce  = flag.Bool("force", false, "Create updates even if the files exist")
+	override = flag.String("override", "", "Override latest episode with num:date")
 )
 
 const (
@@ -52,6 +50,16 @@ func main() {
 		log.Fatalf("Looking up latest episode: %v", err)
 	}
 	log.Printf("Latest episode is %s, airdate %s", latest.Episode, latest.Date)
+	if *override != "" {
+		ov := strings.SplitN(*override, ":", 2)
+		latest.Episode = ilof.Label(ov[0])
+		log.Printf(" >> override episode: %v", latest.Episode)
+		if len(ov) == 2 {
+			ts, _ := time.Parse("2006-01-02", ov[1])
+			latest.Date = ilof.Date(ts)
+			log.Printf(" >> override date: %v", latest.Date)
+		}
+	}
 
 	updates, err := ilof.NewTwitter(token).Updates(ctx, latest.Date)
 	if err != nil {
@@ -70,7 +78,9 @@ func main() {
 		if exists && !*doForce {
 			continue
 		}
-		if err := createEpisodeFile(epNum, up, epPath); err != nil {
+		if *doDryRun {
+			log.Printf("Not writing episode file %q, this is a dry run", epPath)
+		} else if err := createEpisodeFile(epPath, epNum, up); err != nil {
 			log.Fatalf("Creating episode file for %d: %v", epNum, err)
 		}
 
@@ -85,30 +95,20 @@ func main() {
 	}
 }
 
-func createEpisodeFile(num int, up *ilof.TwitterUpdate, path string) error {
-	var buf bytes.Buffer
-	fmt.Fprintln(&buf, "---")
-
-	enc := yaml.NewEncoder(&buf)
-	if err := enc.Encode(&ilof.Episode{
-		Episode:      ilof.Label(strconv.Itoa(num)),
-		Date:         ilof.Date(up.Date),
-		CrowdcastURL: up.Crowdcast,
-		YouTubeURL:   up.YouTube,
-	}); err != nil {
-		return fmt.Errorf("encoding episode: %v", err)
+func createEpisodeFile(path string, num int, up *ilof.TwitterUpdate) error {
+	ep, err := ilof.LoadEpisode(path)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			return err
+		}
+		ep = &ilof.Episode{
+			Episode: ilof.Label(strconv.Itoa(num)),
+			Date:    ilof.Date(up.Date),
+		}
 	}
-	enc.Close()
-	fmt.Fprintln(&buf, "---")
-	if *doDryRun {
-		log.Printf("Prepared %d bytes to write to %q (dry run, no file will be written)\n%s",
-			buf.Len(), path, buf.String())
-	} else if nw, err := atomicfile.WriteAll(path, &buf, 0644); err != nil {
-		return err
-	} else {
-		log.Printf("Wrote %d bytes to %q", nw, path)
-	}
-	return nil
+	ep.CrowdcastURL = up.Crowdcast
+	ep.YouTubeURL = up.YouTube
+	return ilof.WriteEpisode(path, ep)
 }
 
 func cdRepoRoot() (string, error) {
