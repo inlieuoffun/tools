@@ -2,6 +2,7 @@ package ilof_test
 
 import (
 	"context"
+	"flag"
 	"os"
 	"strings"
 	"testing"
@@ -9,7 +10,12 @@ import (
 	"github.com/inlieuoffun/tools/ilof"
 )
 
+var doManual = flag.Bool("manual", false, "Run manual tests")
+
 func TestLatestEpisode(t *testing.T) {
+	if !*doManual {
+		t.Skip("Skipping manual test (-manual=false)")
+	}
 	token := os.Getenv("TWITTER_TOKEN")
 	if token == "" {
 		t.Fatal("No TWITTER_TOKEN is set")
