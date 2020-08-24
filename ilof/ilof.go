@@ -6,16 +6,21 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
+	"github.com/creachadair/atomicfile"
 	"github.com/creachadair/twitter"
 	"github.com/creachadair/twitter/tweets"
 	"github.com/creachadair/twitter/types"
+	yaml "gopkg.in/yaml.v3"
 )
 
 // BaseURL is the base URL of the production site.
@@ -30,7 +35,8 @@ type Episode struct {
 	Summary      string   `json:"summary,omitempty" yaml:"summary,omitempty"`
 	CrowdcastURL string   `json:"crowdcastURL,omitempty" yaml:"crowdcast,omitempty"`
 	YouTubeURL   string   `json:"youTubeURL,omitempty" yaml:"youtube,omitempty"`
-	Links        []Link   `json:"links,omitempty" yaml:"links,omitempty"`
+	Links        []*Link  `json:"links,omitempty" yaml:"links,omitempty"`
+	Detail       string   `json:"detail,omitempty" yaml:"-"`
 }
 
 // A Label holds the string encoding of an episode label, which can be either a
@@ -106,6 +112,49 @@ func (d Date) MarshalYAML() (interface{}, error) {
 type Link struct {
 	Title string `json:"title,omitempty" yaml:"title,omitempty"`
 	URL   string `json:"url" yaml:"url"`
+}
+
+// LoadEpisode loads an episode from the markdown file at path.
+func LoadEpisode(path string) (*Episode, error) {
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	// Hacky parse for Jekyll front matter. Actually these are YAML doc headers,
+	// but the document handling is too fiddly to bother.
+	chunks := strings.SplitN(string(data), "---\n", 3)
+	if len(chunks) != 3 || chunks[0] != "" {
+		return nil, errors.New("invalid episode file format")
+	}
+
+	var ep Episode
+	if err := yaml.Unmarshal([]byte(chunks[1]), &ep); err != nil {
+		return nil, fmt.Errorf("decoding front matter: %v", err)
+	}
+	ep.Detail = strings.TrimSpace(chunks[2])
+	return &ep, nil
+}
+
+// WriteEpisode writes the specified episode to path, overwriting an existing
+// file if it exists.
+func WriteEpisode(path string, ep *Episode) error {
+	f, err := atomicfile.New(path, 0644)
+	if err != nil {
+		return err
+	}
+	defer f.Cancel()
+	fmt.Fprintln(f, "---")
+	data, err := yaml.Marshal(ep)
+	if err != nil {
+		return err
+	}
+	f.Write(data)
+	fmt.Fprintln(f, "---")
+	if ep.Detail != "" {
+		fmt.Fprintln(f, ep.Detail)
+	}
+	return f.Close()
 }
 
 // LatestEpisode queries the site for the latest episode.
