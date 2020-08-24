@@ -22,9 +22,11 @@ import (
 )
 
 var (
-	doDryRun = flag.Bool("dry-run", false, "Do not create or modify any files")
-	doForce  = flag.Bool("force", false, "Create updates even if the files exist")
-	override = flag.String("override", "", "Override latest episode with num:date")
+	doDryRun  = flag.Bool("dry-run", false, "Do not create or modify any files")
+	doForce   = flag.Bool("force", false, "Create updates even if the files exist")
+	override  = flag.String("override", "", "Override latest episode with num:date")
+	checkRepo = flag.String("check-repo", "inlieuoffun.github.io",
+		"Check that working directory matches this repo name")
 )
 
 const (
@@ -39,8 +41,11 @@ func main() {
 		log.Fatal("No TWITTER_TOKEN is set in the environment")
 	}
 
-	if _, err := cdRepoRoot(); err != nil {
+	root, err := cdRepoRoot()
+	if err != nil {
 		log.Fatalf("Changing directory to repo root: %v", err)
+	} else if base := filepath.Base(root); *checkRepo != "" && base != *checkRepo {
+		log.Fatalf("Repository root is %q, but should be %q", base, *checkRepo)
 	}
 
 	ctx := context.Background()
