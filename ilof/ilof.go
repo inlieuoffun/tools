@@ -221,8 +221,16 @@ func NewTwitter(token string) Twitter {
 // Updates queries Twitter for episode updates since the specified date.
 func (t Twitter) Updates(ctx context.Context, since Date) ([]*TwitterUpdate, error) {
 	const query = `from:benjaminwittes "Today on @inlieuoffunshow"`
+
+	// If since corresponds to an air time in the future, there are no further
+	// episodes to find. This check averts an error from the API.
+	then := time.Time(since).Add(22 * time.Hour)
+	if then.After(time.Now()) {
+		return nil, errors.New("no matching updates")
+	}
+
 	rsp, err := tweets.SearchRecent(query, &tweets.SearchOpts{
-		StartTime:  time.Time(since).Add(22 * time.Hour),
+		StartTime:  then,
 		MaxResults: 10,
 		TweetFields: []string{
 			types.Tweet_CreatedAt,
