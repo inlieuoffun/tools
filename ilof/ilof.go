@@ -276,6 +276,21 @@ func (t Twitter) Updates(ctx context.Context, since Date) ([]*TwitterUpdate, err
 	return ups, nil
 }
 
+// YouTubeVideoID reports whether s is a YouTube video URL, and if so returns
+// the value of its video ID (v) parameter.
+func YouTubeVideoID(s string) (string, bool) {
+	u, err := url.Parse(s)
+	if err != nil {
+		return "", false
+	}
+	q, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return "", false
+	}
+	id := q.Get("v")
+	return id, id != ""
+}
+
 // A TwitterUpdate reports data extracted from an episode announcement status
 // on Twitter.
 type TwitterUpdate struct {
