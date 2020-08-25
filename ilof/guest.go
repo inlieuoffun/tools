@@ -35,6 +35,7 @@ func (g *Guest) String() string {
 	return buf.String()
 }
 
+// OnEpisode reports whether g is a guest on the specified episode.
 func (g *Guest) OnEpisode(ep int) bool {
 	for _, v := range g.Episodes {
 		if v == ep {
