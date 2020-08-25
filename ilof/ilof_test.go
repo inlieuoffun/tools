@@ -12,6 +12,20 @@ import (
 
 var doManual = flag.Bool("manual", false, "Run manual tests")
 
+func TestVideoInfo(t *testing.T) {
+	apiKey := os.Getenv("YOUTUBE_API_KEY")
+	if apiKey == "" {
+		t.Fatal("No YOUTUBE_API_KEY is set")
+	}
+
+	ctx := context.Background()
+	info, err := ilof.YouTubeVideoInfo(ctx, "nphZCMuhgUU", apiKey)
+	if err != nil {
+		t.Fatalf("YouTubeVideoInfo failed: %v", err)
+	}
+	t.Logf("Video %q description:\n>> %s", info.ID, info.Description)
+}
+
 func TestLatestEpisode(t *testing.T) {
 	if !*doManual {
 		t.Skip("Skipping manual test (-manual=false)")

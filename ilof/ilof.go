@@ -285,6 +285,65 @@ type TwitterUpdate struct {
 	Guests    []*Guest  // if available, possible guest twitter handles
 }
 
+// YouTubeVideoInfo returns metadata about the specified YouTube video ID.
+func YouTubeVideoInfo(ctx context.Context, id, apiKey string) (*VideoInfo, error) {
+	u, err := url.Parse("https://www.googleapis.com/youtube/v3/videos")
+	if err != nil {
+		return nil, err
+	}
+	q := make(url.Values)
+	q.Set("id", id)
+	q.Set("key", apiKey)
+	q.Set("part", "snippet")
+	u.RawQuery = q.Encode()
+
+	req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
+	if err != nil {
+		return nil, fmt.Errorf("creating request: %w", err)
+	}
+	req.Header.Add("Accept", "application/json")
+	rsp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var buf bytes.Buffer
+	io.Copy(&buf, rsp.Body)
+	rsp.Body.Close()
+	if rsp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("requst failed: %s", rsp.Status)
+	}
+
+	var msg struct {
+		Items []struct {
+			ID      string     `json:"id"`
+			Snippet *VideoInfo `json:"snippet"`
+		}
+	}
+	if err := json.Unmarshal(buf.Bytes(), &msg); err != nil {
+		return &VideoInfo{Reply: buf.Bytes()}, err
+	}
+	for _, item := range msg.Items {
+		if item.ID == id {
+			item.Snippet.ID = id
+			return item.Snippet, nil
+		}
+	}
+	return &VideoInfo{Reply: buf.Bytes()}, errors.New("id not found")
+}
+
+// VideoInfo carries metadata about a YouTube video.
+type VideoInfo struct {
+	ID           string    `json:"-"`
+	PublishedAt  time.Time `json:"publishedAt"`
+	ChannelID    string    `json:"channelId"`
+	ChannelTitle string    `json:"channelTitle"`
+	Title        string    `json:"title"`
+	Description  string    `json:"description"`
+
+	Reply json.RawMessage `json:"-"`
+}
+
 func pickURL(u *types.URL) *url.URL {
 	if out, err := url.Parse(u.Unwound); err == nil {
 		return out
