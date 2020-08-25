@@ -39,11 +39,13 @@ func main() {
 	flag.Parse()
 	token := os.Getenv("TWITTER_TOKEN")
 	if token == "" {
-		log.Fatal("No TWITTER_TOKEN is set in the environment")
+		log.Fatal(`No TWITTER_TOKEN is set in the environment.
+  If you need a token, visit https://developer.twitter.com/en/portal/dashboard`)
 	}
 	apiKey := os.Getenv("YOUTUBE_API_KEY")
 	if apiKey == "" {
-		log.Fatal("No YOUTUBE_API_KEY is set in the environment")
+		log.Fatal(`No YOUTUBE_API_KEY is set in the environment.
+  If you need a key, visit https://console.developers.google.com/apis/credentials`)
 	}
 
 	root, err := cdRepoRoot()
