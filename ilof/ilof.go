@@ -13,7 +13,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -27,6 +26,15 @@ import (
 
 // BaseURL is the base URL of the production site.
 const BaseURL = "https://inlieuof.fun"
+
+// KnownUsers is the list of Twitter handles that should not be considered
+// candidate guest names, when reading tweets about the show.  Names here
+// should be normalized to all-lowercase.
+var KnownUsers = map[string]bool{
+	"benjaminwittes":  true, // Ben
+	"klonick":         true, // Kate
+	"inlieuoffunshow": true, // the show account
+}
 
 // An Episode records details about an episode of the webcast.
 type Episode struct {
@@ -243,20 +251,17 @@ func (t Twitter) Updates(ctx context.Context, since Date) ([]*TwitterUpdate, err
 			}
 		}
 
-		// Look for mentions following a "joined by" string.
-		pos, ok := findJoinedBy(tw.Text)
-		if ok {
-			for _, m := range tw.Entities.Mentions {
-				if m.Span.Start < pos {
-					continue // too soon
-				}
-				g := &Guest{Twitter: m.Username}
-				if info := users.FindByUsername(m.Username); info != nil {
-					g.Name = info.Name
-					g.URL = info.ProfileURL
-				}
-				up.Guests = append(up.Guests, g)
+		// Find mentions not recorded in the stop list.
+		for _, m := range tw.Entities.Mentions {
+			if KnownUsers[strings.ToLower(m.Username)] {
+				continue // this is not a guest
 			}
+			g := &Guest{Twitter: m.Username}
+			if info := users.FindByUsername(m.Username); info != nil {
+				g.Name = info.Name
+				g.URL = info.ProfileURL
+			}
+			up.Guests = append(up.Guests, g)
 		}
 
 		ups = append(ups, up)
@@ -271,16 +276,6 @@ type TwitterUpdate struct {
 	YouTube   string    // if available, the YouTube stream link
 	Crowdcast string    // if available, the Crowdcast stream link
 	Guests    []*Guest  // if available, possible guest twitter handles
-}
-
-var joinedBy = regexp.MustCompile(`(?i)\bjoined by\b`)
-
-func findJoinedBy(text string) (int, bool) {
-	m := joinedBy.FindStringIndex(text)
-	if m == nil {
-		return -1, false
-	}
-	return m[1], true
 }
 
 func pickURL(u *types.URL) *url.URL {
