@@ -8,6 +8,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -39,6 +40,10 @@ func main() {
 	token := os.Getenv("TWITTER_TOKEN")
 	if token == "" {
 		log.Fatal("No TWITTER_TOKEN is set in the environment")
+	}
+	apiKey := os.Getenv("YOUTUBE_API_KEY")
+	if apiKey == "" {
+		log.Fatal("No YOUTUBE_API_KEY is set in the environment")
 	}
 
 	root, err := cdRepoRoot()
@@ -83,9 +88,17 @@ func main() {
 		if exists && !*doForce {
 			continue
 		}
+		var desc string
+		if info, err := fetchEpisodeInfo(ctx, up, apiKey); err != nil {
+			log.Printf("* Unable to fetch video detail from YouTube: %v", err)
+		} else {
+			desc = info.Description
+			log.Printf("- Fetched video description from YouTube (%d bytes)", len(desc))
+		}
+
 		if *doDryRun {
 			log.Printf("Not writing episode file %q, this is a dry run", epPath)
-		} else if err := createEpisodeFile(epPath, epNum, up); err != nil {
+		} else if err := createEpisodeFile(epPath, epNum, desc, up); err != nil {
 			log.Fatalf("Creating episode file for %d: %v", epNum, err)
 		}
 
@@ -100,7 +113,7 @@ func main() {
 	}
 }
 
-func createEpisodeFile(path string, num int, up *ilof.TwitterUpdate) error {
+func createEpisodeFile(path string, num int, desc string, up *ilof.TwitterUpdate) error {
 	ep, err := ilof.LoadEpisode(path)
 	if err != nil {
 		if !os.IsNotExist(err) {
@@ -109,11 +122,20 @@ func createEpisodeFile(path string, num int, up *ilof.TwitterUpdate) error {
 		ep = &ilof.Episode{
 			Episode: ilof.Label(strconv.Itoa(num)),
 			Date:    ilof.Date(up.Date),
+			Detail:  desc,
 		}
 	}
 	ep.CrowdcastURL = up.Crowdcast
 	ep.YouTubeURL = up.YouTube
 	return ilof.WriteEpisode(path, ep)
+}
+
+func fetchEpisodeInfo(ctx context.Context, up *ilof.TwitterUpdate, apiKey string) (*ilof.VideoInfo, error) {
+	id, ok := ilof.YouTubeVideoID(up.YouTube)
+	if !ok {
+		return nil, errors.New("no video ID found")
+	}
+	return ilof.YouTubeVideoInfo(ctx, id, apiKey)
 }
 
 func cdRepoRoot() (string, error) {
