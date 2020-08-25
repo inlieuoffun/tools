@@ -291,12 +291,20 @@ func YouTubeVideoID(s string) (string, bool) {
 	if err != nil {
 		return "", false
 	}
-	q, err := url.ParseQuery(u.RawQuery)
-	if err != nil {
+	switch u.Host {
+	case "youtube.com", "www.youtube.com":
+		q, err := url.ParseQuery(u.RawQuery)
+		if err != nil {
+			return "", false
+		}
+		id := q.Get("v")
+		return id, id != ""
+	case "youtu.be":
+		id := strings.TrimPrefix(u.Path, "/")
+		return id, id != ""
+	default:
 		return "", false
 	}
-	id := q.Get("v")
-	return id, id != ""
 }
 
 // A TwitterUpdate reports data extracted from an episode announcement status

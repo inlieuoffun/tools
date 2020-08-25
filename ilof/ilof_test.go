@@ -12,7 +12,34 @@ import (
 
 var doManual = flag.Bool("manual", false, "Run manual tests")
 
+func TestYouTubeVideoID(t *testing.T) {
+	tests := []struct {
+		input, wantID string
+		wantOK        bool
+	}{
+		{"https://google.com", "", false},
+		{"http://youtu.be/foobar?q=baz", "foobar", true},
+		{"https://www.youtube.com/watch?v=kiss_me", "kiss_me", true},
+		{"https://youtube.com/watch?v=you_fool", "you_fool", true},
+		{"https://youtube.com/watch?v=you_fool&feature=youtu.be", "you_fool", true},
+		{"https://youtube.com/watch", "", false},
+		{"https://youtu.be/", "", false},
+	}
+	for _, test := range tests {
+		id, ok := ilof.YouTubeVideoID(test.input)
+		if id != test.wantID {
+			t.Errorf("YouTubeVideoID(%q): got ID %q, want %q", test.input, id, test.wantID)
+		}
+		if ok != test.wantOK {
+			t.Errorf("YouTubeVideoID(%q): got %v, want %v", test.input, ok, test.wantOK)
+		}
+	}
+}
+
 func TestVideoInfo(t *testing.T) {
+	if !*doManual {
+		t.Skip("Skipping manual test (-manual=false)")
+	}
 	apiKey := os.Getenv("YOUTUBE_API_KEY")
 	if apiKey == "" {
 		t.Fatal("No YOUTUBE_API_KEY is set")
