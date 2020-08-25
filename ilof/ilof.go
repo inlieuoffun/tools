@@ -61,6 +61,7 @@ func (a Label) Int() int {
 	return -1
 }
 
+// UnmarshalJSON decodes a label from a JSON number or string.
 func (a *Label) UnmarshalJSON(data []byte) error {
 	var z int
 	if err := json.Unmarshal(data, &z); err == nil {
@@ -75,6 +76,7 @@ func (a *Label) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// MarshalJSON encodes a label to a JSON number or string.
 func (a Label) MarshalJSON() ([]byte, error) {
 	if _, err := strconv.Atoi(string(a)); err == nil {
 		return []byte(a), nil
@@ -82,6 +84,7 @@ func (a Label) MarshalJSON() ([]byte, error) {
 	return json.Marshal(string(a))
 }
 
+// MarshalYAML encodes a label as a YAML number or string.
 func (a Label) MarshalYAML() (interface{}, error) {
 	if v := a.Int(); v >= 0 {
 		return v, nil
@@ -97,6 +100,7 @@ const dateFormat = "2006-01-02"
 
 func (d Date) String() string { return time.Time(d).Format(dateFormat) }
 
+// UnmarshalJSON decodes a date from a JSON string formatted "2006-01-02".
 func (d *Date) UnmarshalJSON(data []byte) error {
 	var s string
 	if err := json.Unmarshal(data, &s); err != nil {
@@ -110,6 +114,7 @@ func (d *Date) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// UnmarshalYAML decodes a date from a YAML string formatted "2006-01-02".
 func (d *Date) UnmarshalYAML(node *yaml.Node) error {
 	ts, err := time.Parse(dateFormat, node.Value)
 	if err != nil {
@@ -119,10 +124,12 @@ func (d *Date) UnmarshalYAML(node *yaml.Node) error {
 	return nil
 }
 
+// MarshalJSON encodes a date as a JSON string.
 func (d Date) MarshalJSON() ([]byte, error) {
 	return []byte(d.String()), nil
 }
 
+// MarshalYAML encodes a date as a YAML string.
 func (d Date) MarshalYAML() (interface{}, error) {
 	return d.String(), nil
 }
