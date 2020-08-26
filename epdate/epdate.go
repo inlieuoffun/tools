@@ -50,7 +50,7 @@ func main() {
 
 	root, err := cdRepoRoot()
 	if err != nil {
-		log.Fatalf("Changing directory to repo root: %v", err)
+		log.Fatalf("Changing directory to repo root: %v\n(This tool requires a repository clone)", err)
 	} else if base := filepath.Base(root); *checkRepo != "" && base != *checkRepo {
 		log.Fatalf("Repository root is %q, but should be %q", base, *checkRepo)
 	}
@@ -99,18 +99,18 @@ func main() {
 		}
 
 		if *doDryRun {
-			log.Printf("Not writing episode file %q, this is a dry run", epPath)
+			log.Printf("@ Not writing episode file %q, this is a dry run", epPath)
 		} else if err := createEpisodeFile(epPath, epNum, desc, up); err != nil {
-			log.Fatalf("Creating episode file for %d: %v", epNum, err)
+			log.Fatalf("* Creating episode file for %d: %v", epNum, err)
 		}
 
 		for _, guest := range up.Guests {
 			log.Printf("- Guest: %s", guest)
 		}
 		if *doDryRun {
-			log.Printf("Skipped guest list update, this is a dry run")
+			log.Printf("@ Skipped guest list update, this is a dry run")
 		} else if err := ilof.AddOrUpdateGuests(epNum, guestFile, up.Guests); err != nil {
-			log.Fatalf("Updating guest list: %v", err)
+			log.Fatalf("* Updating guest list: %v", err)
 		}
 	}
 }
