@@ -209,10 +209,18 @@ type Twitter struct {
 // NewTwitter constructs a twitter client wrapper using the given bearer token.
 func NewTwitter(token string) Twitter {
 	cli := &twitter.Client{Authorize: twitter.BearerTokenAuthorizer(token)}
-	b, _ := strconv.ParseBool(os.Getenv("TWITTER_DEBUG"))
-	if b {
+	debug := os.Getenv("TWITTER_DEBUG")
+	if debug == "all" {
+		cli.Log = func(tag, msg string) { log.Printf("DEBUG %s :: %s", tag, msg) }
+	} else if debug != "" {
+		tags := make(map[string]bool)
+		for _, tag := range strings.Split(debug, ",") {
+			tags[tag] = true
+		}
 		cli.Log = func(tag, msg string) {
-			log.Printf("TWITTER DEBUG %s :: %s", tag, msg)
+			if tags[tag] {
+				log.Printf("DEBUG %s :: %s", tag, msg)
+			}
 		}
 	}
 	return Twitter{cli: cli}
