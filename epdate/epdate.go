@@ -102,6 +102,8 @@ func main() {
 			log.Printf("@ Not writing episode file %q, this is a dry run", epPath)
 		} else if err := createEpisodeFile(epPath, epNum, desc, up); err != nil {
 			log.Fatalf("* Creating episode file for %d: %v", epNum, err)
+		} else {
+			log.Printf("- Wrote episode %d file: %s", epNum, epPath)
 		}
 
 		for _, guest := range up.Guests {
