@@ -246,7 +246,7 @@ func (t Twitter) Updates(ctx context.Context, since Date) ([]*TwitterUpdate, err
 			types.Tweet_Entities, // for URLs, usernames
 		},
 		Expansions: []string{
-			types.ExpandMentionUsername,
+			types.Expand_MentionUsername,
 		},
 	}).Invoke(ctx, t.cli)
 	if err != nil {
