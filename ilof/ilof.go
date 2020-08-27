@@ -34,6 +34,7 @@ var KnownUsers = map[string]bool{
 	"benjaminwittes":  true, // Ben
 	"klonick":         true, // Kate
 	"inlieuoffunshow": true, // the show account
+	"lawfareblog":     true, // not itself a human
 }
 
 // An Episode records details about an episode of the webcast.
