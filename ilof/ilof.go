@@ -35,6 +35,8 @@ var KnownUsers = map[string]bool{
 	"klonick":         true, // Kate
 	"inlieuoffunshow": true, // the show account
 	"lawfareblog":     true, // not itself a human
+	"youtube":         true, // streaming service
+	"crowdcasthq":     true, // streaming service
 }
 
 // An Episode records details about an episode of the webcast.
