@@ -7,6 +7,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"flag"
@@ -25,6 +26,7 @@ import (
 var (
 	doDryRun  = flag.Bool("dry-run", false, "Do not create or modify any files")
 	doForce   = flag.Bool("force", false, "Create updates even if the files exist")
+	doEdit    = flag.Bool("edit", false, "Edit new or modified files after update")
 	override  = flag.String("override", "", "Override latest episode with num:date")
 	checkRepo = flag.String("check-repo", "inlieuoffun.github.io",
 		"Check that working directory matches this repo name")
@@ -79,6 +81,9 @@ func main() {
 	}
 	log.Printf("Found %d updates on twitter since %s", len(updates), latest.Date)
 
+	var editPaths []string
+	var guestsDirty bool
+
 	for i, up := range updates {
 		epNum := latest.Episode.Int() + len(updates) - i
 		epFile := fmt.Sprintf("%s-%04d.md", up.Date.Format("2006-01-02"), epNum)
@@ -113,6 +118,17 @@ func main() {
 			log.Printf("@ Skipped guest list update, this is a dry run")
 		} else if err := ilof.AddOrUpdateGuests(epNum, guestFile, up.Guests); err != nil {
 			log.Fatalf("* Updating guest list: %v", err)
+		}
+		editPaths = append(editPaths, epPath)
+		guestsDirty = guestsDirty || len(up.Guests) != 0
+	}
+	if guestsDirty {
+		editPaths = append(editPaths, guestFile)
+	}
+
+	if *doEdit && len(editPaths) != 0 {
+		if err := editFiles(editPaths); err != nil {
+			log.Fatalf("Edit failed: %v", err)
 		}
 	}
 }
@@ -154,4 +170,33 @@ func cdRepoRoot() (string, error) {
 func fileExists(path string) bool {
 	_, err := os.Stat(path)
 	return err == nil
+}
+
+func editFiles(paths []string) error {
+	editor := os.Getenv("EDITOR")
+	if editor == "" {
+		return errors.New("no EDITOR is defined")
+	}
+
+	// Ensure the editor can interact with the controlling terminal.
+	f, err := os.Open("/dev/tty")
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	cmd := exec.Command(editor, paths...)
+	buf := bytes.NewBuffer(nil)
+	cmd.Stdin = f
+	cmd.Stdout = f
+	cmd.Stderr = buf
+	err = cmd.Run()
+	if err != nil {
+		msg := buf.String()
+		if msg != "" {
+			return errors.New(msg)
+		}
+		return err
+	}
+	return nil
 }
