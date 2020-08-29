@@ -116,7 +116,7 @@ func AddOrUpdateGuests(episode int, path string, guests []*Guest) error {
 
 func findGuest(needle *Guest, gs []*Guest) *Guest {
 	for _, g := range gs {
-		if g.Name == needle.Name {
+		if g.Name == needle.Name || g.Twitter != "" && g.Twitter == needle.Twitter {
 			return g
 		}
 	}
