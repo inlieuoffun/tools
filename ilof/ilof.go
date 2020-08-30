@@ -243,9 +243,11 @@ func (t Twitter) Updates(ctx context.Context, since Date) ([]*TwitterUpdate, err
 	rsp, err := tweets.SearchRecent(query, &tweets.SearchOpts{
 		StartTime:  then,
 		MaxResults: 10,
-		TweetFields: []string{
-			types.Tweet_CreatedAt,
-			types.Tweet_Entities, // for URLs, usernames
+		Optional: []types.Fields{
+			types.TweetFields{
+				CreatedAt: true,
+				Entities:  true,
+			},
 		},
 		Expansions: []string{
 			types.Expand_MentionUsername,
