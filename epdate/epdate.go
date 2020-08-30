@@ -52,11 +52,16 @@ func main() {
   If you need a key, visit https://console.developers.google.com/apis/credentials`)
 	}
 
-	root, err := cdRepoRoot()
-	if err != nil {
+	if _, err := cdRepoRoot(); err != nil {
 		log.Fatalf("Changing directory to repo root: %v\n(This tool requires a repository clone)", err)
-	} else if base := filepath.Base(root); *checkRepo != "" && base != *checkRepo {
-		log.Fatalf("Repository root is %q, but should be %q", base, *checkRepo)
+	}
+	if *checkRepo != "" {
+		remote, err := remoteRepoName("origin")
+		if err != nil {
+			log.Fatalf("Finding origin URL: %v", err)
+		} else if remote != *checkRepo {
+			log.Fatalf("Remote is %q, but should be %q", remote, *checkRepo)
+		}
 	}
 
 	ctx := context.Background()
@@ -167,6 +172,15 @@ func cdRepoRoot() (string, error) {
 	}
 	root := strings.TrimSpace(string(data))
 	return root, os.Chdir(root)
+}
+
+func remoteRepoName(name string) (string, error) {
+	data, err := exec.Command("git", "remote", "get-url", name).Output()
+	if err != nil {
+		return "", err
+	}
+	repo := filepath.Base(strings.TrimSpace(string(data)))
+	return strings.TrimSuffix(repo, ".git"), nil
 }
 
 func fileExists(path string) bool {
