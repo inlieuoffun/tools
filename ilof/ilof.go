@@ -244,13 +244,8 @@ func (t Twitter) Updates(ctx context.Context, since Date) ([]*TwitterUpdate, err
 		StartTime:  then,
 		MaxResults: 10,
 		Optional: []types.Fields{
-			types.TweetFields{
-				CreatedAt: true,
-				Entities:  true,
-			},
-		},
-		Expansions: []string{
-			types.Expand_MentionUsername,
+			types.TweetFields{CreatedAt: true, Entities: true},
+			types.Expansions{types.Expand_MentionUsername},
 		},
 	}).Invoke(ctx, t.cli)
 	if err != nil {
