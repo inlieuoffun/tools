@@ -1,3 +1,5 @@
+// Copyright (C) 2020 Michael J. Fromberger. All Rights Reserved.
+
 // Package ilof provides support code for the In Lieu of Fun site.
 package ilof
 
