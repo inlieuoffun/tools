@@ -1,3 +1,5 @@
+// Copyright (C) 2020 Michael J. Fromberger. All Rights Reserved.
+
 // Program epdate checks for new episodes since the most recent
 // visible on the main web site, and creates new episode files for them with
 // stream URLs populated.
