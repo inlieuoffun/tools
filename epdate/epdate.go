@@ -98,7 +98,7 @@ func main() {
 		exists := fileExists(epPath)
 
 		log.Printf("Update %d: episode %d, posted %s, exists=%v",
-			i+1, epNum, up.Date.Format(time.RFC822), exists)
+			i+1, epNum, up.Date.In(time.Local).Format(time.RFC822), exists)
 		if exists && !*doForce {
 			continue
 		}
