@@ -247,6 +247,7 @@ func (t Twitter) Updates(ctx context.Context, since Date) ([]*TwitterUpdate, err
 		MaxResults: 10,
 		Optional: []types.Fields{
 			types.TweetFields{CreatedAt: true, Entities: true},
+			types.UserFields{Description: true, ProfileURL: true},
 			types.Expansions{types.Expand_MentionUsername},
 		},
 	}).Invoke(ctx, t.cli)
@@ -285,6 +286,7 @@ func (t Twitter) Updates(ctx context.Context, since Date) ([]*TwitterUpdate, err
 			if info := users.FindByUsername(m.Username); info != nil {
 				g.Name = info.Name
 				g.URL = info.ProfileURL
+				g.Notes = info.Description
 			}
 			up.Guests = append(up.Guests, g)
 		}
