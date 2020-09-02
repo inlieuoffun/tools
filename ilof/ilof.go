@@ -250,7 +250,7 @@ func (t Twitter) Updates(ctx context.Context, since Date) ([]*TwitterUpdate, err
 		MaxResults: 10,
 		Optional: []types.Fields{
 			types.TweetFields{CreatedAt: true, Entities: true},
-			types.UserFields{Description: true, ProfileURL: true},
+			types.UserFields{Description: true, ProfileURL: true, Entities: true},
 			types.Expansions{types.Expand_MentionUsername},
 		},
 	}).Invoke(ctx, t.cli)
@@ -288,7 +288,7 @@ func (t Twitter) Updates(ctx context.Context, since Date) ([]*TwitterUpdate, err
 			g := &Guest{Twitter: m.Username}
 			if info := users.FindByUsername(m.Username); info != nil {
 				g.Name = info.Name
-				g.URL = info.ProfileURL
+				g.URL = pickUserURL(info)
 				g.Notes = info.Description
 			}
 			up.Guests = append(up.Guests, g)
@@ -297,6 +297,19 @@ func (t Twitter) Updates(ctx context.Context, since Date) ([]*TwitterUpdate, err
 		ups = append(ups, up)
 	}
 	return ups, nil
+}
+
+func pickUserURL(info *types.User) string {
+	if info.Entities == nil {
+		return info.ProfileURL
+	}
+	candidates := append(info.Entities.URL.URLs, info.Entities.Description.URLs...)
+	for _, next := range candidates {
+		if next.URL == info.ProfileURL && next.Expanded != "" {
+			return next.Expanded
+		}
+	}
+	return info.ProfileURL
 }
 
 // YouTubeVideoID reports whether s is a YouTube video URL, and if so returns
