@@ -21,6 +21,7 @@ import (
 
 	"github.com/creachadair/atomicfile"
 	"github.com/creachadair/twitter"
+	"github.com/creachadair/twitter/jhttp"
 	"github.com/creachadair/twitter/tweets"
 	"github.com/creachadair/twitter/types"
 	yaml "gopkg.in/yaml.v3"
@@ -213,7 +214,9 @@ type Twitter struct {
 
 // NewTwitter constructs a twitter client wrapper using the given bearer token.
 func NewTwitter(token string) Twitter {
-	cli := &twitter.Client{Authorize: twitter.BearerTokenAuthorizer(token)}
+	cli := twitter.NewClient(&twitter.ClientOpts{
+		Authorize: jhttp.BearerTokenAuthorizer(token),
+	})
 	debug := os.Getenv("TWITTER_DEBUG")
 	if debug == "all" {
 		cli.Log = func(tag, msg string) { log.Printf("DEBUG %s :: %s", tag, msg) }
