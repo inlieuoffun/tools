@@ -207,13 +207,8 @@ func LatestEpisode(ctx context.Context) (*Episode, error) {
 	return ep.Latest, nil
 }
 
-// Twitter is a twitter client wrapper for ILoF.
-type Twitter struct {
-	cli *twitter.Client
-}
-
-// NewTwitter constructs a twitter client wrapper using the given bearer token.
-func NewTwitter(token string) Twitter {
+// newTwitter constructs a twitter client wrapper using the given bearer token.
+func newTwitter(token string) *twitter.Client {
 	cli := twitter.NewClient(&twitter.ClientOpts{
 		Authorize: jhttp.BearerTokenAuthorizer(token),
 	})
@@ -231,11 +226,11 @@ func NewTwitter(token string) Twitter {
 			}
 		}
 	}
-	return Twitter{cli: cli}
+	return cli
 }
 
-// Updates queries Twitter for episode updates since the specified date.
-func (t Twitter) Updates(ctx context.Context, since Date) ([]*TwitterUpdate, error) {
+// TwitterUpdates queries Twitter for episode updates since the specified date.
+func TwitterUpdates(ctx context.Context, token string, since Date) ([]*TwitterUpdate, error) {
 	const query = `from:benjaminwittes "Today on @inlieuoffunshow"`
 
 	// If since corresponds to an air time in the future, there are no further
@@ -245,6 +240,7 @@ func (t Twitter) Updates(ctx context.Context, since Date) ([]*TwitterUpdate, err
 		return nil, errors.New("no matching updates")
 	}
 
+	cli := newTwitter(token)
 	rsp, err := tweets.SearchRecent(query, &tweets.SearchOpts{
 		StartTime:  then,
 		MaxResults: 10,
@@ -253,7 +249,7 @@ func (t Twitter) Updates(ctx context.Context, since Date) ([]*TwitterUpdate, err
 			types.UserFields{Description: true, ProfileURL: true, Entities: true},
 			types.Expansions{types.Expand_MentionUsername},
 		},
-	}).Invoke(ctx, t.cli)
+	}).Invoke(ctx, cli)
 	if err != nil {
 		return nil, err
 	} else if len(rsp.Tweets) == 0 {

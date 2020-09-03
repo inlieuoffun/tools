@@ -63,7 +63,6 @@ func TestLatestEpisode(t *testing.T) {
 	if token == "" {
 		t.Fatal("No TWITTER_TOKEN is set")
 	}
-	cli := ilof.NewTwitter(token)
 
 	ctx := context.Background()
 	ep, err := ilof.LatestEpisode(ctx)
@@ -79,7 +78,7 @@ Summary:
 > %s`, ep.Episode, ep.Date, ep.YouTubeURL, ep.CrowdcastURL,
 		strings.Join(ep.Guests, ", "), ep.Summary)
 
-	ups, err := cli.Updates(ctx, ep.Date)
+	ups, err := ilof.TwitterUpdates(ctx, token, ep.Date)
 	if err != nil {
 		t.Fatalf("TwitterUpdates failed: %v", err)
 	}

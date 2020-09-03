@@ -82,7 +82,7 @@ func main() {
 		}
 	}
 
-	updates, err := ilof.NewTwitter(token).Updates(ctx, latest.Date)
+	updates, err := ilof.TwitterUpdates(ctx, token, latest.Date)
 	if err != nil {
 		log.Fatalf("Finding updates on twitter: %v", err)
 	}
