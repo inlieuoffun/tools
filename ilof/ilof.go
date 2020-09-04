@@ -214,7 +214,7 @@ func newTwitter(token string) *twitter.Client {
 	})
 	debug, err := strconv.ParseBool(os.Getenv("TWITTER_DEBUG"))
 	if err == nil && debug {
-		cli.Log = func(tag jhttp.LogTag, msg string) { log.Printf("DEBUG %s :: %s", tag, msg) }
+		cli.Log = func(tag jhttp.LogTag, msg string) { log.Printf("DEBUG :: %s | %s", tag, msg) }
 	}
 	return cli
 }
