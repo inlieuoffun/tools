@@ -20,8 +20,8 @@ import (
 	"time"
 
 	"github.com/creachadair/atomicfile"
+	"github.com/creachadair/jhttp"
 	"github.com/creachadair/twitter"
-	"github.com/creachadair/twitter/jhttp"
 	"github.com/creachadair/twitter/tweets"
 	"github.com/creachadair/twitter/types"
 	yaml "gopkg.in/yaml.v3"
@@ -209,7 +209,7 @@ func LatestEpisode(ctx context.Context) (*Episode, error) {
 
 // newTwitter constructs a twitter client wrapper using the given bearer token.
 func newTwitter(token string) *twitter.Client {
-	cli := twitter.NewClient(&twitter.ClientOpts{
+	cli := twitter.NewClient(&jhttp.Client{
 		Authorize: jhttp.BearerTokenAuthorizer(token),
 	})
 	debug, err := strconv.ParseBool(os.Getenv("TWITTER_DEBUG"))
