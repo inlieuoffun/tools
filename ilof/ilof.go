@@ -212,9 +212,10 @@ func newTwitter(token string) *twitter.Client {
 	cli := twitter.NewClient(&jhttp.Client{
 		Authorize: jhttp.BearerTokenAuthorizer(token),
 	})
-	debug, err := strconv.ParseBool(os.Getenv("TWITTER_DEBUG"))
-	if err == nil && debug {
+	v, err := strconv.Atoi(os.Getenv("TWITTER_DEBUG"))
+	if err == nil && v > 0 {
 		cli.Log = func(tag jhttp.LogTag, msg string) { log.Printf("DEBUG :: %s | %s", tag, msg) }
+		cli.LogMask = jhttp.LogTag(v)
 	}
 	return cli
 }
