@@ -40,6 +40,7 @@ var KnownUsers = map[string]bool{
 	"lawfareblog":     true, // not itself a human
 	"youtube":         true, // streaming service
 	"crowdcasthq":     true, // streaming service
+	"crowdcast":       true, // "
 }
 
 // An Episode records details about an episode of the webcast.
