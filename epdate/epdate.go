@@ -33,6 +33,7 @@ var (
 	doDryRun  = flag.Bool("dry-run", false, "Do not create or modify any files")
 	doForce   = flag.Bool("force", false, "Create updates even if the files exist")
 	doEdit    = flag.Bool("edit", false, "Edit new or modified files after update")
+	doPoll    = flag.Bool("poll", false, "Poll for updates")
 	override  = flag.String("override", "", "Override latest episode with num:date")
 	checkRepo = flag.String("check-repo", "inlieuoffun.github.io",
 		"Check that working directory matches this repo name")
@@ -69,7 +70,31 @@ func main() {
 	}
 
 	ctx := context.Background()
+	for {
+		didUpdate := checkForUpdate(ctx, token, apiKey) != nil
+		if !*doPoll {
+			if didUpdate {
+				return
+			}
+			os.Exit(3)
+		}
 
+		now, start := todayStart()
+		if didUpdate || now.After(start) {
+			nextStart := start.Add(24 * time.Hour)
+			diff := nextStart.Add(-5 * time.Hour).Sub(now)
+			log.Printf("Next episode is tomorrow; sleeping for %v...", diff)
+			time.Sleep(diff)
+			continue
+		}
+
+		diff := start.Sub(now)
+		log.Printf("Next episode in %v; sleeping for %v...", diff, diff/10)
+		time.Sleep(diff / 10)
+	}
+}
+
+func checkForUpdate(ctx context.Context, token, apiKey string) error {
 	latest, err := ilof.LatestEpisode(ctx)
 	if err != nil {
 		log.Fatalf("Looking up latest episode: %v", err)
@@ -90,7 +115,7 @@ func main() {
 	if err != nil {
 		log.Printf("Finding updates on twitter: %v", err)
 		if err == ilof.ErrNoUpdates {
-			os.Exit(3)
+			return err
 		}
 		os.Exit(1)
 	}
@@ -146,6 +171,7 @@ func main() {
 			log.Fatalf("Edit failed: %v", err)
 		}
 	}
+	return nil
 }
 
 func createEpisodeFile(path string, num int, desc string, up *ilof.TwitterUpdate) error {
@@ -223,4 +249,10 @@ func editFiles(paths []string) error {
 		return err
 	}
 	return nil
+}
+
+func todayStart() (now, then time.Time) {
+	now = time.Now()
+	then = time.Date(now.Year(), now.Month(), now.Day(), 21, 0, 0, 0, time.UTC)
+	return
 }
