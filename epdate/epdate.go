@@ -79,7 +79,8 @@ func main() {
 			os.Exit(3)
 		}
 
-		now, start := todayStart()
+		now := time.Now()
+		start := todayStart(now)
 		if didUpdate || now.After(start) {
 			nextStart := start.Add(24 * time.Hour)
 			diff := nextStart.Add(-5 * time.Hour).Sub(now)
@@ -251,8 +252,6 @@ func editFiles(paths []string) error {
 	return nil
 }
 
-func todayStart() (now, then time.Time) {
-	now = time.Now()
-	then = time.Date(now.Year(), now.Month(), now.Day(), 21, 0, 0, 0, time.UTC)
-	return
+func todayStart(now time.Time) time.Time {
+	return time.Date(now.Year(), now.Month(), now.Day(), 21, 0, 0, 0, time.UTC)
 }
