@@ -6,6 +6,10 @@
 //
 // You must provide a TWITTER_TOKEN environment variable with a Twitter API v2
 // bearer token.
+//
+// Exit status 0 means an update was generated.
+// Exit status 3 means no update was available.
+// Any other status means some other failure.
 package main
 
 import (
@@ -84,7 +88,11 @@ func main() {
 
 	updates, err := ilof.TwitterUpdates(ctx, token, latest.Date)
 	if err != nil {
-		log.Fatalf("Finding updates on twitter: %v", err)
+		log.Printf("Finding updates on twitter: %v", err)
+		if err == ilof.ErrNoUpdates {
+			os.Exit(3)
+		}
+		os.Exit(1)
 	}
 	log.Printf("Found %d updates on twitter since %s", len(updates), latest.Date)
 

@@ -30,6 +30,9 @@ import (
 // BaseURL is the base URL of the production site.
 const BaseURL = "https://inlieuof.fun"
 
+// ErrNoUpdates is reported by TwitterUpdates when no updates are available.
+var ErrNoUpdates = errors.New("no matching updates")
+
 // KnownUsers is the list of Twitter handles that should not be considered
 // candidate guest names, when reading tweets about the show.  Names here
 // should be normalized to all-lowercase.
@@ -230,7 +233,7 @@ func TwitterUpdates(ctx context.Context, token string, since Date) ([]*TwitterUp
 	// episodes to find. This check averts an error from the API.
 	then := time.Time(since).Add(22 * time.Hour)
 	if then.After(time.Now()) {
-		return nil, errors.New("no matching updates")
+		return nil, ErrNoUpdates
 	}
 
 	cli := newTwitter(token)
@@ -246,7 +249,7 @@ func TwitterUpdates(ctx context.Context, token string, since Date) ([]*TwitterUp
 	if err != nil {
 		return nil, err
 	} else if len(rsp.Tweets) == 0 {
-		return nil, errors.New("no matching updates")
+		return nil, ErrNoUpdates
 	}
 	users, _ := rsp.IncludedUsers()
 
