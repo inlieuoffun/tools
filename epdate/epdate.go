@@ -71,7 +71,7 @@ func main() {
 
 	ctx := context.Background()
 	for {
-		didUpdate := checkForUpdate(ctx, token, apiKey) != nil
+		didUpdate := checkForUpdate(ctx, token, apiKey) == nil
 		if !*doPoll {
 			if didUpdate {
 				return
