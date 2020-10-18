@@ -83,13 +83,13 @@ func main() {
 		start := todayStart(now)
 		if didUpdate || now.After(start) {
 			nextStart := start.Add(24 * time.Hour)
-			diff := nextStart.Add(-7 * time.Hour).Sub(now)
+			diff := nextStart.Add(-7 * time.Hour).Sub(now).Truncate(1 * time.Minute)
 			log.Printf("Next episode is tomorrow; sleeping for %v...", diff)
 			time.Sleep(diff)
 			continue
 		}
 
-		diff := start.Sub(now)
+		diff := start.Sub(now).Truncate(1 * time.Minute)
 		log.Printf("Next episode in %v; sleeping for %v...", diff, diff/10)
 		time.Sleep(diff / 10)
 	}
