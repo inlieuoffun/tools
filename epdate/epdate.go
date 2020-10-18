@@ -83,7 +83,7 @@ func main() {
 		start := todayStart(now)
 		if didUpdate || now.After(start) {
 			nextStart := start.Add(24 * time.Hour)
-			diff := nextStart.Add(-5 * time.Hour).Sub(now)
+			diff := nextStart.Add(-7 * time.Hour).Sub(now)
 			log.Printf("Next episode is tomorrow; sleeping for %v...", diff)
 			time.Sleep(diff)
 			continue
