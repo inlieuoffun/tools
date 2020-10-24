@@ -90,8 +90,12 @@ func main() {
 		}
 
 		diff := start.Sub(now).Truncate(1 * time.Minute)
-		log.Printf("Next episode in %v; sleeping for %v...", diff, diff/10)
-		time.Sleep(diff / 10)
+		wait := 3 * (diff / 20)
+		if wait < 1*time.Minute {
+			wait = 1 * time.Minute
+		}
+		log.Printf("Next episode in %v; sleeping for %v...", diff, wait)
+		time.Sleep(wait)
 	}
 }
 
