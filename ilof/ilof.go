@@ -243,7 +243,7 @@ func TwitterUpdates(ctx context.Context, token string, since Date) ([]*TwitterUp
 		Optional: []types.Fields{
 			types.TweetFields{CreatedAt: true, Entities: true},
 			types.UserFields{Description: true, ProfileURL: true, Entities: true},
-			types.Expansions{types.Expand_MentionUsername},
+			types.Expansions{MentionUsername: true},
 		},
 	}).Invoke(ctx, cli)
 	if err != nil {
