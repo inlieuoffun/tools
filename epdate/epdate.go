@@ -257,5 +257,5 @@ func editFiles(paths []string) error {
 }
 
 func todayStart(now time.Time) time.Time {
-	return time.Date(now.Year(), now.Month(), now.Day(), 21, 0, 0, 0, time.UTC)
+	return time.Date(now.Year(), now.Month(), now.Day(), 22, 0, 0, 0, time.UTC)
 }
