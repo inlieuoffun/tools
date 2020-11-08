@@ -71,7 +71,7 @@ func main() {
 
 	ctx := context.Background()
 	for {
-		didUpdate := checkForUpdate(ctx, token, apiKey) == nil
+		latestDate, didUpdate := checkForUpdate(ctx, token, apiKey)
 		if !*doPoll {
 			if didUpdate {
 				return
@@ -81,7 +81,7 @@ func main() {
 
 		now := time.Now()
 		start := todayStart(now)
-		if didUpdate || now.After(start) {
+		if isSameDate(time.Time(latestDate), now) {
 			nextStart := start.Add(24 * time.Hour)
 			diff := nextStart.Add(-7 * time.Hour).Sub(now).Truncate(1 * time.Minute)
 			log.Printf("Next episode is tomorrow; sleeping for %v...", diff)
@@ -99,7 +99,7 @@ func main() {
 	}
 }
 
-func checkForUpdate(ctx context.Context, token, apiKey string) error {
+func checkForUpdate(ctx context.Context, token, apiKey string) (ilof.Date, bool) {
 	latest, err := ilof.LatestEpisode(ctx)
 	if err != nil {
 		log.Fatalf("Looking up latest episode: %v", err)
@@ -120,7 +120,7 @@ func checkForUpdate(ctx context.Context, token, apiKey string) error {
 	if err != nil {
 		log.Printf("Finding updates on twitter: %v", err)
 		if err == ilof.ErrNoUpdates {
-			return err
+			return latest.Date, false
 		}
 		os.Exit(1)
 	}
@@ -182,7 +182,7 @@ func checkForUpdate(ctx context.Context, token, apiKey string) error {
 			log.Fatalf("Edit failed: %v", err)
 		}
 	}
-	return nil
+	return latest.Date, true
 }
 
 func createEpisodeFile(path string, num int, desc string, up *ilof.TwitterUpdate) error {
@@ -264,4 +264,8 @@ func editFiles(paths []string) error {
 
 func todayStart(now time.Time) time.Time {
 	return time.Date(now.Year(), now.Month(), now.Day(), 22, 0, 0, 0, time.UTC)
+}
+
+func isSameDate(now, then time.Time) bool {
+	return now.Year() == then.Year() && now.Month() == then.Month() && now.Day() == then.Day()
 }
