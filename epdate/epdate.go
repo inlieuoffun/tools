@@ -156,6 +156,12 @@ func checkForUpdate(ctx context.Context, token, apiKey string) error {
 			log.Printf("- Wrote episode %d file: %s", epNum, epPath)
 		}
 
+		if up.Date.Weekday() == time.Sunday && len(up.Guests) == 0 {
+			up.Guests = append(up.Guests, &ilof.Guest{
+				Name:  "Undisclosed mystery guest",
+				Notes: "A guest (or guests) whose identity has not yet been revealed",
+			})
+		}
 		for _, guest := range up.Guests {
 			log.Printf("- Guest: %s", guest)
 		}
