@@ -90,7 +90,7 @@ func main() {
 		}
 
 		diff := start.Sub(now).Truncate(1 * time.Minute)
-		wait := 3 * (diff / 20)
+		wait := 2 * (diff / 20)
 		if wait < 1*time.Minute {
 			wait = 1 * time.Minute
 		}
