@@ -83,7 +83,7 @@ func main() {
 		start := todayStart(now)
 		if isSameDate(time.Time(latestDate), now) {
 			nextStart := start.Add(24 * time.Hour)
-			diff := nextStart.Add(-7 * time.Hour).Sub(now).Truncate(1 * time.Minute)
+			diff := nextStart.Add(-7 * time.Hour).Sub(now).Round(1 * time.Minute)
 			log.Printf("Next episode is tomorrow; sleeping for %v...", diff)
 			time.Sleep(diff)
 			continue
