@@ -96,7 +96,7 @@ func main() {
 		if wait < 1*time.Minute {
 			wait = 1 * time.Minute
 		}
-		log.Printf("Next episode in %v; sleeping for %v...", diff.Round(1*time.Minute), wait)
+		log.Printf("Next episode in %v; sleeping for %v...", diff.Round(1*time.Minute), wait.Round(1*time.Minute))
 		time.Sleep(wait)
 	}
 }
