@@ -84,19 +84,19 @@ func main() {
 		if isSameDate(time.Time(latestDate), now) {
 			nextStart := start.Add(24 * time.Hour)
 			nextWake := nextStart.Add(-7 * time.Hour)
-			diff := nextWake.Sub(now).Round(1 * time.Minute)
-			log.Printf("Next episode is tomorrow; sleeping for %v (until %s)...", diff,
+			diff := nextWake.Sub(now)
+			log.Printf("Next episode is tomorrow; sleeping for %v (until %s)...", diff.Round(1*time.Minute),
 				nextWake.In(time.Local).Format(time.Kitchen))
 			time.Sleep(diff)
 			continue
 		}
 
-		diff := start.Sub(now).Truncate(1 * time.Minute)
+		diff := start.Sub(now)
 		wait := 2 * (diff / 20)
 		if wait < 1*time.Minute {
 			wait = 1 * time.Minute
 		}
-		log.Printf("Next episode in %v; sleeping for %v...", diff, wait)
+		log.Printf("Next episode in %v; sleeping for %v...", diff.Round(1*time.Minute), wait)
 		time.Sleep(wait)
 	}
 }
