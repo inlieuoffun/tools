@@ -37,6 +37,9 @@ var (
 	override  = flag.String("override", "", "Override latest episode with num:date")
 	checkRepo = flag.String("check-repo", "inlieuoffun.github.io",
 		"Check that working directory matches this repo name")
+
+	// The error reported when a video ID is not found in the description.
+	errNoVideoID = errors.New("no video ID found")
 )
 
 const (
@@ -143,7 +146,10 @@ func checkForUpdate(ctx context.Context, token, apiKey string) (ilof.Date, bool)
 			continue
 		}
 		var desc string
-		if info, err := fetchEpisodeInfo(ctx, up, apiKey); err != nil {
+		if info, err := fetchEpisodeInfo(ctx, up, apiKey); err == errNoVideoID {
+			log.Print("* No video ID found for this episode; retrying later")
+			return latest.Date, false
+		} else if err != nil {
 			log.Printf("* Unable to fetch video detail from YouTube: %v", err)
 		} else {
 			desc = info.Description
@@ -207,7 +213,7 @@ func createEpisodeFile(path string, num int, desc string, up *ilof.TwitterUpdate
 func fetchEpisodeInfo(ctx context.Context, up *ilof.TwitterUpdate, apiKey string) (*ilof.VideoInfo, error) {
 	id, ok := ilof.YouTubeVideoID(up.YouTube)
 	if !ok {
-		return nil, errors.New("no video ID found")
+		return nil, errNoVideoID
 	}
 	return ilof.YouTubeVideoInfo(ctx, id, apiKey)
 }
