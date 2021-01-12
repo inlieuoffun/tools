@@ -38,6 +38,7 @@ var ErrNoUpdates = errors.New("no matching updates")
 // should be normalized to all-lowercase.
 var KnownUsers = map[string]bool{
 	"benjaminwittes":  true, // Ben
+	"brookingsinst":   true, // Lawfare's supporting institute
 	"klonick":         true, // Kate
 	"inlieuoffunshow": true, // the show account
 	"lawfareblog":     true, // not itself a human
