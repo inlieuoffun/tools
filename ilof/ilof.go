@@ -396,12 +396,19 @@ type VideoInfo struct {
 	Reply json.RawMessage `json:"-"`
 }
 
+func parseURL(u string) (*url.URL, error) {
+	if u == "" {
+		return nil, errors.New("no url")
+	}
+	return url.Parse(u)
+}
+
 func pickURL(u *types.URL) *url.URL {
-	if out, err := url.Parse(u.Unwound); err == nil {
+	if out, err := parseURL(u.Unwound); err == nil {
 		return out
-	} else if out, err := url.Parse(u.Expanded); err == nil {
+	} else if out, err := parseURL(u.Expanded); err == nil {
 		return out
-	} else if out, err := url.Parse(u.URL); err == nil {
+	} else if out, err := parseURL(u.URL); err == nil {
 		return out
 	}
 	return nil
