@@ -287,7 +287,9 @@ func TwitterUpdates(ctx context.Context, token string, since Date) ([]*TwitterUp
 			up.Guests = append(up.Guests, g)
 		}
 
-		ups = append(ups, up)
+		if !hasSameEpisode(up, ups) {
+			ups = append(ups, up)
+		}
 	}
 	return ups, nil
 }
@@ -425,4 +427,19 @@ func cleanURL(u *url.URL) {
 		}
 	}
 	u.RawQuery = q.Encode()
+}
+
+func isSameEpisode(u1, u2 *TwitterUpdate) bool {
+	return u1.YouTube == u2.YouTube &&
+		u1.Crowdcast == u2.Crowdcast &&
+		guestListsEqual(u1.Guests, u2.Guests)
+}
+
+func hasSameEpisode(u *TwitterUpdate, us []*TwitterUpdate) bool {
+	for _, v := range us {
+		if isSameEpisode(u, v) {
+			return true
+		}
+	}
+	return false
 }

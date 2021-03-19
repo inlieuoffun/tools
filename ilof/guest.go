@@ -134,11 +134,27 @@ func AddOrUpdateGuests(episode int, path string, guests []*Guest) error {
 
 func findGuest(needle *Guest, gs []*Guest) *Guest {
 	for _, g := range gs {
-		if g.Name == needle.Name || g.Twitter != "" && g.Twitter == needle.Twitter {
+		if isSameGuest(g, needle) {
 			return g
 		}
 	}
 	return nil
+}
+
+func isSameGuest(g1, g2 *Guest) bool {
+	return g1.Name == g2.Name || g1.Twitter != "" && g1.Twitter == g2.Twitter
+}
+
+func guestListsEqual(g1, g2 []*Guest) bool {
+	if len(g1) != len(g2) {
+		return false
+	}
+	for _, g := range g1 {
+		if findGuest(g, g2) == nil {
+			return false
+		}
+	}
+	return true
 }
 
 // MysteryGuestSunday reports whether today is Sunday, and if so whose turn it
