@@ -228,7 +228,7 @@ func newTwitter(token string) *twitter.Client {
 
 // TwitterUpdates queries Twitter for episode updates since the specified date.
 func TwitterUpdates(ctx context.Context, token string, since Date) ([]*TwitterUpdate, error) {
-	const query = `(from:benjaminwittes ("today on" OR "tonight on") @inlieuoffunshow has:links -is:reply -is:retweet) OR (from:inlieuoffunshow crowdcast)`
+	const query = `((from:benjaminwittes ("today on" OR "tonight on") @inlieuoffunshow) OR (from:inlieuoffunshow crowdcast)) has:links -is:reply -is:retweet`
 
 	// If since corresponds to an air time in the future, there are no further
 	// episodes to find. This check averts an error from the API.
