@@ -287,7 +287,7 @@ func TwitterUpdates(ctx context.Context, token string, since Date) ([]*TwitterUp
 			up.Guests = append(up.Guests, g)
 		}
 
-		if !hasSameEpisode(up, ups) {
+		if shouldKeepUpdate(up, ups) {
 			ups = append(ups, up)
 		}
 	}
@@ -435,11 +435,17 @@ func isSameEpisode(u1, u2 *TwitterUpdate) bool {
 		guestListsEqual(u1.Guests, u2.Guests)
 }
 
-func hasSameEpisode(u *TwitterUpdate, us []*TwitterUpdate) bool {
+func shouldKeepUpdate(u *TwitterUpdate, us []*TwitterUpdate) bool {
+	// If the update has no meaningful links, discard it.
+	if u.Crowdcast == "" && u.YouTube == "" && len(u.Guests) == 0 {
+		return false
+	}
+
+	// If we already found an identical update, discard this one.
 	for _, v := range us {
-		if isSameEpisode(u, v) {
-			return true
+		if isSameEpisode(v, u) {
+			return false
 		}
 	}
-	return false
+	return true
 }
