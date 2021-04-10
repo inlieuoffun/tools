@@ -56,6 +56,7 @@ type Episode struct {
 	Summary      string   `json:"summary,omitempty" yaml:"summary,omitempty"`
 	CrowdcastURL string   `json:"crowdcastURL,omitempty" yaml:"crowdcast,omitempty"`
 	YouTubeURL   string   `json:"youTubeURL,omitempty" yaml:"youtube,omitempty"`
+	AcastURL     string   `json:"acastURL,omitempty" yaml:"acast,omitempty"`
 	Special      bool     `json:"special,omitempty" yaml:"special,omitempty"`
 	Links        []*Link  `json:"links,omitempty" yaml:"links,omitempty"`
 	Detail       string   `json:"detail,omitempty" yaml:"-"`
