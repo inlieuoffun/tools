@@ -147,8 +147,8 @@ func checkForUpdate(ctx context.Context, token, apiKey string) (ilof.Date, bool)
 		}
 		var desc string
 		if info, err := fetchEpisodeInfo(ctx, up, apiKey); err == errNoVideoID {
-			log.Print("* No video ID found for this episode; retrying later")
-			return latest.Date, false
+			log.Print("* No video ID found for this episode; skipping")
+			continue
 		} else if err != nil {
 			log.Printf("* Unable to fetch video detail from YouTube: %v", err)
 		} else {
