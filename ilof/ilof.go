@@ -45,6 +45,7 @@ var KnownUsers = map[string]bool{
 	"youtube":         true, // streaming service
 	"crowdcasthq":     true, // streaming service
 	"crowdcast":       true, // "
+	"scottjshapiro":   true, // alternative host
 }
 
 // An Episode records details about an episode of the webcast.
