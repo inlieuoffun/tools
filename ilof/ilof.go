@@ -46,6 +46,7 @@ var KnownUsers = map[string]bool{
 	"crowdcasthq":     true, // streaming service
 	"crowdcast":       true, // "
 	"scottjshapiro":   true, // alternative host
+	"genevievedfr":    true, // alternative host
 }
 
 // An Episode records details about an episode of the webcast.
