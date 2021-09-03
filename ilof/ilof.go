@@ -12,6 +12,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"math"
 	"net/http"
 	"net/url"
 	"os"
@@ -68,43 +69,51 @@ type Episode struct {
 // number or a string.
 type Label string
 
-// Int returns the value of a as an integer, or -1.
-func (a Label) Int() int {
-	if v, err := strconv.Atoi(string(a)); err == nil {
+// Number returns the numeric value of x, or -1 if x is not numeric in form.
+func (x Label) Number() float64 {
+	if v, err := strconv.ParseFloat(string(x), 64); err == nil {
 		return v
 	}
 	return -1
 }
 
+func numToString(f float64) string {
+	z, frac := math.Modf(f)
+	if frac == 0 {
+		return strconv.Itoa(int(z))
+	}
+	return fmt.Sprintf("%.1f", f)
+}
+
 // UnmarshalJSON decodes a label from a JSON number or string.
-func (a *Label) UnmarshalJSON(data []byte) error {
-	var z int
-	if err := json.Unmarshal(data, &z); err == nil {
-		*a = Label(strconv.Itoa(z))
+func (x *Label) UnmarshalJSON(data []byte) error {
+	var num float64
+	if err := json.Unmarshal(data, &num); err == nil {
+		*x = Label(numToString(num))
 		return nil
 	}
 	var s string
 	if err := json.Unmarshal(data, &s); err != nil {
 		return err
 	}
-	*a = Label(s)
+	*x = Label(s)
 	return nil
 }
 
 // MarshalJSON encodes a label to a JSON number or string.
-func (a Label) MarshalJSON() ([]byte, error) {
-	if _, err := strconv.Atoi(string(a)); err == nil {
-		return []byte(a), nil
+func (x Label) MarshalJSON() ([]byte, error) {
+	if v := x.Number(); v >= 0 {
+		return json.Marshal(v)
 	}
-	return json.Marshal(string(a))
+	return json.Marshal(string(x))
 }
 
 // MarshalYAML encodes a label as a YAML number or string.
-func (a Label) MarshalYAML() (interface{}, error) {
-	if v := a.Int(); v >= 0 {
+func (x Label) MarshalYAML() (interface{}, error) {
+	if v := x.Number(); v >= 0 {
 		return v, nil
 	}
-	return string(a), nil
+	return string(x), nil
 }
 
 // A Date records the date when an episode aired or will air.

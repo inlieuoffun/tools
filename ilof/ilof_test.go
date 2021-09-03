@@ -84,7 +84,7 @@ Summary:
 	}
 
 	for i, up := range ups {
-		num := ep.Episode.Int() + len(ups) - i
+		num := int(ep.Episode.Number()) + len(ups) - i
 		t.Logf(`Probable episode %d:
 Date:      %s
 YouTube:   %s
