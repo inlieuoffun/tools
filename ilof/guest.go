@@ -31,11 +31,11 @@ func init() {
 
 // A Guest gives the name and some links for a guest.
 type Guest struct {
-	Name     string `yaml:"name"`
-	Twitter  string `yaml:"twitter,omitempty"`
-	URL      string `yaml:"url,omitempty"`
-	Notes    string `yaml:"notes,omitempty"`
-	Episodes []int  `yaml:"episodes,flow"`
+	Name     string    `yaml:"name"`
+	Twitter  string    `yaml:"twitter,omitempty"`
+	URL      string    `yaml:"url,omitempty"`
+	Notes    string    `yaml:"notes,omitempty"`
+	Episodes []float64 `yaml:"episodes,flow"`
 }
 
 func (g *Guest) String() string {
@@ -54,7 +54,7 @@ func (g *Guest) String() string {
 }
 
 // OnEpisode reports whether g is a guest on the specified episode.
-func (g *Guest) OnEpisode(ep int) bool {
+func (g *Guest) OnEpisode(ep float64) bool {
 	for _, v := range g.Episodes {
 		if v == ep {
 			return true
@@ -69,7 +69,7 @@ var firstNonComment = regexp.MustCompile(`(?m)^[^#]`)
 // the specified episode. New entries are added if they do not already exist,
 // matched by name. Otherwise, new episode entries are added to existing
 // guests. If successful, the file at path is updated in place.
-func AddOrUpdateGuests(episode int, path string, guests []*Guest) error {
+func AddOrUpdateGuests(episode float64, path string, guests []*Guest) error {
 	if len(guests) == 0 {
 		return nil
 	}
@@ -96,12 +96,12 @@ func AddOrUpdateGuests(episode int, path string, guests []*Guest) error {
 	for _, g := range guests {
 		old := findGuest(g, entries)
 		if old == nil {
-			g.Episodes = []int{episode}
+			g.Episodes = []float64{episode}
 			entries = append(entries, g)
 			dirty = true
 		} else if !old.OnEpisode(episode) {
 			old.Episodes = append(old.Episodes, episode)
-			sort.Ints(old.Episodes)
+			sort.Float64s(old.Episodes)
 			dirty = true
 		}
 	}

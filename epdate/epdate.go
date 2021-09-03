@@ -136,7 +136,7 @@ func checkForUpdate(ctx context.Context, token, apiKey string) (ilof.Date, bool)
 	var guestsDirty bool
 
 	for i, up := range updates {
-		epNum := latest.Episode.Int() + len(updates) - i
+		epNum := int(latest.Episode.Number()) + len(updates) - i
 		epFile := fmt.Sprintf("%s-%04d.md", up.Date.Format("2006-01-02"), epNum)
 		epPath := filepath.Join(episodeDir, epFile)
 		exists := fileExists(epPath)
@@ -178,7 +178,7 @@ func checkForUpdate(ctx context.Context, token, apiKey string) (ilof.Date, bool)
 		}
 		if *doDryRun {
 			log.Printf("@ Skipped guest list update, this is a dry run")
-		} else if err := ilof.AddOrUpdateGuests(epNum, guestFile, up.Guests); err != nil {
+		} else if err := ilof.AddOrUpdateGuests(float64(epNum), guestFile, up.Guests); err != nil {
 			log.Fatalf("* Updating guest list: %v", err)
 		}
 		editPaths = append(editPaths, epPath)
