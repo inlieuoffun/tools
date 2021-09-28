@@ -34,6 +34,7 @@ var (
 	doForce    = flag.Bool("force", false, "Create updates even if the files exist")
 	doEdit     = flag.Bool("edit", false, "Edit new or modified files after update")
 	doPoll     = flag.Bool("poll", false, "Poll for updates")
+	doPollOne  = flag.Bool("poll-one", false, "Poll for a single update")
 	checkVideo = flag.Bool("check-video", true, "Fail if no video ID is found")
 	override   = flag.String("override", "", "Override latest episode with num:date")
 	checkRepo  = flag.String("check-repo", "inlieuoffun.github.io",
@@ -76,10 +77,11 @@ func main() {
 	ctx := context.Background()
 	for {
 		latestDate, didUpdate := checkForUpdate(ctx, token, apiKey)
-		if !*doPoll {
-			if didUpdate {
+		if didUpdate {
+			if *doPollOne || !*doPoll {
 				return
 			}
+		} else if !*doPoll && !*doPollOne {
 			os.Exit(3)
 		}
 
