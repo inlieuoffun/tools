@@ -8,26 +8,10 @@ import (
 	"regexp"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/creachadair/atomicfile"
 	yaml "gopkg.in/yaml.v3"
 )
-
-var (
-	easternTime *time.Location
-
-	// The start time of the first (pilot) episode.
-	firstShow = time.Date(2020, 3, 25, 21, 0, 0, 0, time.UTC)
-)
-
-func init() {
-	usEast, err := time.LoadLocation("America/New_York")
-	if err != nil {
-		panic(err)
-	}
-	easternTime = usEast
-}
 
 // A Guest gives the name and some links for a guest.
 type Guest struct {
@@ -155,17 +139,4 @@ func guestListsEqual(g1, g2 []*Guest) bool {
 		}
 	}
 	return true
-}
-
-// MysteryGuestSunday reports whether today is Sunday, and if so whose turn it
-// is to host the guest.
-func MysteryGuestSunday() (ok bool, who string) {
-	now := time.Now().In(easternTime)
-	diff := now.Sub(firstShow) / (7 * 24 * time.Hour) // nominal weeks
-	if diff%2 == 0 {
-		who = "Ben"
-	} else {
-		who = "Kate"
-	}
-	return now.Weekday() == time.Sunday, who
 }
