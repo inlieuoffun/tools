@@ -213,16 +213,38 @@ func LatestEpisode(ctx context.Context) (*Episode, error) {
 	if err != nil {
 		return nil, err
 	}
-	var buf bytes.Buffer
-	io.Copy(&buf, rsp.Body)
+	body, err := io.ReadAll(rsp.Body)
 	rsp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
 	var ep struct {
 		Latest *Episode `json:"latest"`
 	}
-	if err := json.Unmarshal(buf.Bytes(), &ep); err != nil {
+	if err := json.Unmarshal(body, &ep); err != nil {
 		return nil, err
 	}
 	return ep.Latest, nil
+}
+
+// AllEpisodes queries the site for all episodes.
+func AllEpisodes(ctx context.Context) ([]*Episode, error) {
+	rsp, err := http.Get(BaseURL + "/episodes.json")
+	if err != nil {
+		return nil, err
+	}
+	body, err := io.ReadAll(rsp.Body)
+	rsp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+	var eps struct {
+		Episodes []*Episode `json:"episodes"`
+	}
+	if err := json.Unmarshal(body, &eps); err != nil {
+		return nil, err
+	}
+	return eps.Episodes, nil
 }
 
 // newTwitter constructs a twitter client wrapper using the given bearer token.
