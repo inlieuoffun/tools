@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/inlieuoffun/tools/ilof"
+	"github.com/inlieuoffun/tools/repo"
 )
 
 var (
@@ -62,11 +63,11 @@ func main() {
   If you need a key, visit https://console.developers.google.com/apis/credentials`)
 	}
 
-	if _, err := cdRepoRoot(); err != nil {
+	if err := repo.ChdirRoot(); err != nil {
 		log.Fatalf("Changing directory to repo root: %v\n(This tool requires a repository clone)", err)
 	}
 	if *checkRepo != "" {
-		remote, err := remoteRepoName("origin")
+		remote, err := repo.RemoteRepo("origin")
 		if err != nil {
 			log.Fatalf("Finding origin URL: %v", err)
 		} else if remote != *checkRepo {
@@ -215,24 +216,6 @@ func fetchEpisodeInfo(ctx context.Context, up *ilof.TwitterUpdate, apiKey string
 		return nil, errNoVideoID
 	}
 	return ilof.YouTubeVideoInfo(ctx, id, apiKey)
-}
-
-func cdRepoRoot() (string, error) {
-	data, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
-	if err != nil {
-		return "", err
-	}
-	root := strings.TrimSpace(string(data))
-	return root, os.Chdir(root)
-}
-
-func remoteRepoName(name string) (string, error) {
-	data, err := exec.Command("git", "remote", "get-url", name).Output()
-	if err != nil {
-		return "", err
-	}
-	repo := filepath.Base(strings.TrimSpace(string(data)))
-	return strings.TrimSuffix(repo, ".git"), nil
 }
 
 func fileExists(path string) bool {
