@@ -92,3 +92,23 @@ Crowdcast: %s
 Guests:    %+v`, num, up.Date.Format("2006-01-02"), up.YouTube, up.Crowdcast, up.Guests)
 	}
 }
+
+func TestAcastFeed(t *testing.T) {
+	if !*doManual {
+		t.Skip("Skipping manual test (-manual=false)")
+	}
+	eps, err := ilof.LoadAcastFeed(context.Background(), ilof.AcastFeedURL)
+	if err != nil {
+		t.Fatalf("LoadAcastFeed: %v", err)
+	}
+	for i, ep := range eps {
+		t.Logf(`Entry %d:
+Title:     %s
+Subtitle:  %s
+PageLink:  %s
+FileLink:  %s
+Duration:  %v
+Published: %v
+`, i+1, ep.Title, ep.Subtitle, ep.PageLink, ep.FileLink, ep.Duration, ep.Published)
+	}
+}
