@@ -42,6 +42,9 @@ func main() {
 	for _, ep := range eps {
 		delete(acastIndex, ep.AcastURL)
 	}
+	if len(acastIndex) == 0 {
+		log.Fatal("No audio episodes require updating")
+	}
 
 	for _, ep := range audio {
 		if _, ok := acastIndex[ep.PageLink]; !ok {
