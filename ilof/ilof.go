@@ -38,16 +38,16 @@ var ErrNoUpdates = errors.New("no matching updates")
 // candidate guest names, when reading tweets about the show.  Names here
 // should be normalized to all-lowercase.
 var KnownUsers = map[string]bool{
-	"benjaminwittes":  true, // Ben
+	"benjaminwittes":  true, // Ben (host)
 	"brookingsinst":   true, // Lawfare's supporting institute
-	"klonick":         true, // Kate
-	"inlieuoffunshow": true, // the show account
-	"lawfareblog":     true, // not itself a human
-	"youtube":         true, // streaming service
+	"crowdcast":       true, // streaming service
 	"crowdcasthq":     true, // streaming service
-	"crowdcast":       true, // "
-	"scottjshapiro":   true, // alternative host
-	"genevievedfr":    true, // alternative host
+	"genevievedfr":    true, // Genevieve (host)
+	"inlieuoffunshow": true, // the show account
+	"klonick":         true, // Kate (host)
+	"lawfareblog":     true, // not itself a human
+	"scottjshapiro":   true, // Scott (host)
+	"youtube":         true, // streaming service
 }
 
 // An Episode records details about an episode of the webcast.
