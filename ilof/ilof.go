@@ -260,9 +260,25 @@ func newTwitter(token string) *twitter.Client {
 	return cli
 }
 
+func limitBeforeToday(d Date, limit time.Duration) Date {
+	t := time.Time(d)
+	now := time.Now().In(t.Location())
+	if now.Sub(t) > limit {
+		today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+		return Date(today.Add(-limit))
+	}
+	return d
+}
+
 // TwitterUpdates queries Twitter for episode updates since the specified date.
 func TwitterUpdates(ctx context.Context, token string, since Date) ([]*TwitterUpdate, error) {
 	const query = `((from:benjaminwittes ("today on" OR "tonight on") @inlieuoffunshow) OR (from:inlieuoffunshow crowdcast)) has:links -is:reply -is:retweet`
+
+	// Twitter limits search history to 7 days unless you have research access.
+	// Otherwise, the API will report an error if you try to search earlier.
+	// This means we could miss posts if we don't check often enough, but as
+	// long as we check once in every 7-day window we should be OK.
+	since = limitBeforeToday(since, 7*24*time.Hour)
 
 	// If since corresponds to an air time in the future, there are no further
 	// episodes to find. This check averts an error from the API.
