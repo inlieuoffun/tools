@@ -57,10 +57,10 @@ type Episode struct {
 	Season       int      `json:"season,omitempty" yaml:"season,omitempty"`
 	Guests       []string `json:"guestNames,omitempty" yaml:"-"`
 	Topics       string   `json:"topics,omitempty" yaml:"topics,omitempty"`
-	Summary      string   `json:"summary,omitempty" yaml:"summary,omitempty"`
 	CrowdcastURL string   `json:"crowdcastURL,omitempty" yaml:"crowdcast,omitempty"`
 	YouTubeURL   string   `json:"youTubeURL,omitempty" yaml:"youtube,omitempty"`
 	AcastURL     string   `json:"acastURL,omitempty" yaml:"acast,omitempty"`
+	Summary      string   `json:"summary,omitempty" yaml:"summary,omitempty"`
 	Special      bool     `json:"special,omitempty" yaml:"special,omitempty"`
 	Links        []*Link  `json:"links,omitempty" yaml:"links,omitempty"`
 	Detail       string   `json:"detail,omitempty" yaml:"-"`
