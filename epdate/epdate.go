@@ -202,6 +202,7 @@ func createEpisodeFile(path string, num int, desc string, up *ilof.TwitterUpdate
 		ep = &ilof.Episode{
 			Episode: ilof.Label(strconv.Itoa(num)),
 			Date:    ilof.Date(up.Date),
+			Season:  int(float64(num)/250) + 1,
 			Detail:  desc,
 		}
 	}
