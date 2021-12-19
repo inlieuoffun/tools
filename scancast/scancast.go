@@ -9,11 +9,17 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/inlieuoffun/tools/ilof"
+)
+
+var (
+	doFeed = flag.Bool("json-feed", false, "Print Acast feed as JSON and exit")
 )
 
 func main() {
@@ -25,6 +31,16 @@ func main() {
 		log.Fatalf("Loading acast feed: %v", err)
 	}
 	log.Printf("Loaded %d audio episodes", len(audio))
+	if *doFeed {
+		enc := json.NewEncoder(os.Stdout)
+		enc.SetIndent("", "  ")
+		enc.Encode(struct {
+			E []*ilof.AudioEpisode `json:"episodes"`
+		}{
+			E: audio,
+		})
+		return
+	}
 
 	eps, err := ilof.AllEpisodes(ctx)
 	if err != nil {

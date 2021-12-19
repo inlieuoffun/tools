@@ -54,13 +54,13 @@ func getExtensionField(ext ext.Extensions, ns, name string) string {
 // AudioEpisode represents metadata about an audio recording of an ILoF episode
 // on Acast, distilled out of the public RSS feed for the show.
 type AudioEpisode struct {
-	Title       string
-	Subtitle    string
-	Description string
-	PageLink    string        // URL of the landing page for this episode
-	FileLink    string        // URL of the audio file for this episode
-	Published   time.Time     // when this episode was published
-	Duration    time.Duration // episode duration
+	Title       string        `json:"title,omitempty"`
+	Subtitle    string        `json:"subtitle,omitempty"`
+	Description string        `json:"description,omitempty"`
+	PageLink    string        `json:"pageLink,omitempty"`  // URL of the landing page for this episode
+	FileLink    string        `json:"fileLink,omitempty"`  // URL of the audio file for this episode
+	Published   time.Time     `json:"published,omitempty"` // when this episode was published
+	Duration    time.Duration `json:"duration,omitempty"`  // episode duration
 }
 
 func newAudioEpisode(show string, item *gofeed.Item) (*AudioEpisode, error) {
