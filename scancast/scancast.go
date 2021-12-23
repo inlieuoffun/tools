@@ -68,5 +68,8 @@ func main() {
 		}
 		fmt.Printf("%s %q\n\t%s\n", ep.Published.Format("2006-01-02 15:04"),
 			ep.Title, ep.PageLink)
+		if ep.FileLink != "" {
+			fmt.Printf("\t%s\n", ep.FileLink)
+		}
 	}
 }
