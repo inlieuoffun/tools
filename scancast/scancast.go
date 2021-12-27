@@ -66,8 +66,8 @@ func main() {
 		if _, ok := acastIndex[ep.PageLink]; !ok {
 			continue // already recorded
 		}
-		fmt.Printf("%s %q\nacast: %s\n", ep.Published.Format("2006-01-02 15:04"),
-			ep.Title, ep.PageLink)
+		log.Printf("%s %q", ep.Published.Format("2006-01-02 15:04"), ep.Title)
+		fmt.Printf("acast: %s\n", ep.PageLink)
 		if ep.FileLink != "" {
 			fmt.Printf("audio-file: %s\n", ep.FileLink)
 		}
