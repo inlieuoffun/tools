@@ -63,8 +63,26 @@ type Episode struct {
 	AudioFileURL string   `json:"audioFileURL,omitempty" yaml:"audio-file,omitempty"`
 	Summary      string   `json:"summary,omitempty" yaml:"summary,omitempty"`
 	Special      bool     `json:"special,omitempty" yaml:"special,omitempty"`
+	Tags         []string `json:"tags,omitempty" yaml:"tags,omitempty"`
 	Links        []*Link  `json:"links,omitempty" yaml:"links,omitempty"`
 	Detail       string   `json:"detail,omitempty" yaml:"-"`
+}
+
+// HasTag reports whether e has the specified tag.
+func (e *Episode) HasTag(tag string) bool {
+	for _, t := range e.Tags {
+		if t == tag {
+			return true
+		}
+	}
+	return false
+}
+
+// AddTag adds tag to the tags list for e, if it is not already present.
+func (e *Episode) AddTag(tag string) {
+	if !e.HasTag(tag) {
+		e.Tags = append(e.Tags, tag)
+	}
 }
 
 // A Label holds the string encoding of an episode label, which can be either a
