@@ -63,7 +63,7 @@ type Episode struct {
 	AudioFileURL string   `json:"audioFileURL,omitempty" yaml:"audio-file,omitempty"`
 	Summary      string   `json:"summary,omitempty" yaml:"summary,omitempty"`
 	Special      bool     `json:"special,omitempty" yaml:"special,omitempty"`
-	Tags         []string `json:"tags,omitempty" yaml:"tags,omitempty"`
+	Tags         []string `json:"tags,omitempty" yaml:"tags,flow,omitempty"`
 	Links        []*Link  `json:"links,omitempty" yaml:"links,omitempty"`
 	Detail       string   `json:"detail,omitempty" yaml:"-"`
 }
