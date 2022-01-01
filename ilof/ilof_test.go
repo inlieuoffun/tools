@@ -112,3 +112,28 @@ Published: %v
 `, i+1, ep.Title, ep.Subtitle, ep.PageLink, ep.FileLink, ep.Duration, ep.Published)
 	}
 }
+
+func TestSimilarity(t *testing.T) {
+	tests := []struct {
+		a, b string
+		want float64
+	}{
+		{"", "", 1},
+		{"xyz", "", 0},
+		{"", "xyz", 0},
+		{"a b c", "d e f", 0},
+		{"xyz", "xyz", 1},
+		{"a b c", "c b a", 1},
+		{"a b c", "b d f", 1. / 3},
+		{"a b", "b c", 0.5},
+
+		{"you are everything that is wrong with the world",
+			"you are everything wrong", 2. / 3},
+	}
+	for _, test := range tests {
+		got := ilof.Similarity(test.a, test.b)
+		if got != test.want {
+			t.Errorf("Similarity(%q, %q): got %v, want %v", test.a, test.b, got, test.want)
+		}
+	}
+}
