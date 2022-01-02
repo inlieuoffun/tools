@@ -88,11 +88,11 @@ func main() {
 
 		now := time.Now()
 		start := todayStart(now)
-		if isSameDate(time.Time(latestDate), now) {
-			nextStart := start.Add(24 * time.Hour)
-			nextWake := nextStart.Add(-7 * time.Hour)
+		if !isSameDate(time.Time(latestDate), now) {
+			nextWake := start.Add(-8 * time.Hour)
 			diff := nextWake.Sub(now)
-			log.Printf("Next episode is tomorrow; sleeping for %v (until %s)...", diff.Round(1*time.Minute),
+			log.Printf("Next episode is on %s; sleeping for %v (until %s)...",
+				start.Format("2006-01-02"), diff.Round(1*time.Minute),
 				nextWake.In(time.Local).Format(time.Kitchen))
 			time.Sleep(diff)
 			continue
@@ -103,7 +103,8 @@ func main() {
 		if wait < 1*time.Minute {
 			wait = 1 * time.Minute
 		}
-		log.Printf("Next episode in %v; sleeping for %v...", diff.Round(1*time.Minute), wait.Round(1*time.Minute))
+		log.Printf("Next episode in %v; sleeping for %v...",
+			diff.Round(1*time.Minute), wait.Round(1*time.Minute))
 		time.Sleep(wait)
 	}
 }
@@ -257,7 +258,16 @@ func editFiles(paths []string) error {
 }
 
 func todayStart(now time.Time) time.Time {
-	return time.Date(now.Year(), now.Month(), now.Day(), 22, 0, 0, 0, time.UTC)
+	day := now.Day()
+	if wd := now.Weekday(); wd < time.Friday {
+		if wd%2 == 0 {
+			day++
+		}
+	} else {
+		day += int(8 - wd)
+	}
+	// N.B. we rely on the fact that Date normalizes days out of range.
+	return time.Date(now.Year(), now.Month(), day, 22, 0, 0, 0, time.UTC)
 }
 
 func isSameDate(now, then time.Time) bool {
