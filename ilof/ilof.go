@@ -46,6 +46,7 @@ var KnownUsers = map[string]bool{
 	"inlieuoffunshow": true, // the show account
 	"klonick":         true, // Kate (host)
 	"lawfareblog":     true, // not itself a human
+	"nytimes":         true, // once a newspaper
 	"scottjshapiro":   true, // Scott (host)
 	"youtube":         true, // streaming service
 }
