@@ -88,8 +88,13 @@ func main() {
 
 		now := time.Now()
 		start := todayStart(now)
-		if !isSameDate(time.Time(latestDate), now) {
-			nextWake := start.Add(-8 * time.Hour)
+		if sd := isSameDate(time.Time(latestDate), now); sd || start.Sub(now) > 24*time.Hour {
+			var nextWake time.Time
+			if sd {
+				nextWake = nextStartAfter(now).Add(-8 * time.Hour)
+			} else {
+				nextWake = start.Add(-8 * time.Hour)
+			}
 			diff := nextWake.Sub(now)
 			log.Printf("Next episode is on %s; sleeping for %v (until %s)...",
 				start.Format("2006-01-02"), diff.Round(1*time.Minute),
@@ -268,6 +273,11 @@ func todayStart(now time.Time) time.Time {
 	}
 	// N.B. we rely on the fact that Date normalizes days out of range.
 	return time.Date(now.Year(), now.Month(), day, 22, 0, 0, 0, time.UTC)
+}
+
+func nextStartAfter(now time.Time) time.Time {
+	next := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 1, time.UTC)
+	return todayStart(next)
 }
 
 func isSameDate(now, then time.Time) bool {
