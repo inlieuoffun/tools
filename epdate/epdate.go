@@ -144,14 +144,16 @@ func checkForUpdate(ctx context.Context, token, apiKey string) (ilof.Date, bool)
 	var editPaths []string
 	var guestsDirty bool
 
+	numValid := 0
 	for i, up := range updates {
-		epNum := int(latest.Episode.Number()) + len(updates) - i
-		epFile := fmt.Sprintf("%s-%04d.md", up.Date.Format("2006-01-02"), epNum)
+		epNum := int(latest.Episode.Number()) + numValid + 1
+		epFile := fmt.Sprintf("%s-%04d.md", up.AirDate.Format("2006-01-02"), epNum)
 		epPath := filepath.Join(episodeDir, epFile)
 		exists := fileExists(epPath)
 
-		log.Printf("Update %d: episode %d, posted %s, exists=%v",
-			i+1, epNum, up.Date.In(time.Local).Format(time.RFC822), exists)
+		log.Printf("Update %d: episode %d, posted %s, air %s, exists=%v",
+			i+1, epNum, up.Date.In(time.Local).Format(time.RFC822),
+			up.AirDate.In(time.Local).Format("2006-01-02"), exists)
 		if exists && !*doForce {
 			continue
 		}
@@ -186,6 +188,7 @@ func checkForUpdate(ctx context.Context, token, apiKey string) (ilof.Date, bool)
 		}
 		editPaths = append(editPaths, epPath)
 		guestsDirty = guestsDirty || len(up.Guests) != 0
+		numValid++
 	}
 	if guestsDirty {
 		editPaths = append(editPaths, guestFile)
