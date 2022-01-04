@@ -292,8 +292,9 @@ func limitBeforeToday(d Date, limit time.Duration) Date {
 }
 
 // TwitterUpdates queries Twitter for episode updates since the specified date.
+// Updates (if any) are returned in order from oldest to newest.
 func TwitterUpdates(ctx context.Context, token string, since Date) ([]*TwitterUpdate, error) {
-	const query = `((from:benjaminwittes ("today on" OR "tonight on") @inlieuoffunshow) OR (from:inlieuoffunshow crowdcast)) has:links -is:reply -is:retweet`
+	const query = `((from:benjaminwittes ("today on" OR "tonight on" OR "tomorrow on") @inlieuoffunshow) OR (from:inlieuoffunshow crowdcast)) has:links -is:reply -is:retweet`
 
 	// Twitter limits search history to 7 days unless you have research access.
 	// Otherwise, the API will report an error if you try to search earlier.
@@ -327,7 +328,17 @@ func TwitterUpdates(ctx context.Context, token string, since Date) ([]*TwitterUp
 
 	var ups []*TwitterUpdate
 	for _, tw := range rsp.Tweets {
-		up := &TwitterUpdate{Date: time.Time(*tw.CreatedAt)}
+		up := &TwitterUpdate{
+			Date:    time.Time(*tw.CreatedAt),
+			AirDate: time.Time(*tw.CreatedAt),
+		}
+
+		// Try to figure out whether this is an update for the current date.
+		// If the description includes "tomorrow" we'll assume the air date is
+		// one past the posting date.
+		if ContainsWord(tw.Text, "tomorrow") {
+			up.AirDate = up.Date.Add(24 * time.Hour)
+		}
 
 		// Search URLs for stream links, matched by hostname.
 		for _, try := range tw.Entities.URLs {
@@ -361,6 +372,10 @@ func TwitterUpdates(ctx context.Context, token string, since Date) ([]*TwitterUp
 		if shouldKeepUpdate(up, ups) {
 			ups = append(ups, up)
 		}
+	}
+	for i, j := 0, len(ups)-1; i < j; i++ {
+		ups[i], ups[j] = ups[j], ups[i]
+		j--
 	}
 	return ups, nil
 }
@@ -405,6 +420,7 @@ func YouTubeVideoID(s string) (string, bool) {
 // on Twitter.
 type TwitterUpdate struct {
 	Date      time.Time // the date of the announcement
+	AirDate   time.Time // the speculated air date
 	YouTube   string    // if available, the YouTube stream link
 	Crowdcast string    // if available, the Crowdcast stream link
 	Guests    []*Guest  // if available, possible guest twitter handles
