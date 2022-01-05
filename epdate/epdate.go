@@ -97,7 +97,7 @@ func main() {
 			}
 			diff := nextWake.Sub(now)
 			log.Printf("Next episode is on %s; sleeping for %v (until %s)...",
-				start.Format("2006-01-02"), diff.Round(1*time.Minute),
+				nextWake.Format("2006-01-02"), diff.Round(1*time.Minute),
 				nextWake.In(time.Local).Format(time.Kitchen))
 			time.Sleep(diff)
 			continue
