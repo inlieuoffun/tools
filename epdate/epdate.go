@@ -262,12 +262,12 @@ func editFiles(paths []string) error {
 
 func todayStart(now time.Time) time.Time {
 	day := now.Day()
-	if wd := now.Weekday(); wd < time.Friday {
-		if wd%2 == 0 {
-			day++
-		}
-	} else {
-		day += int(8 - wd)
+	wd := now.Weekday()
+	if wd%2 == 0 {
+		day++
+	}
+	if wd == time.Saturday {
+		day++ // advance past Sunday
 	}
 	// N.B. we rely on the fact that Date normalizes days out of range.
 	return time.Date(now.Year(), now.Month(), day, 22, 0, 0, 0, time.UTC)
