@@ -13,8 +13,8 @@ github.com/creachadair/atomicfile v0.2.2 h1:/qnts+ZoRBH9CSxWO7VWrWlUw4J7c4/cAvAU
 github.com/creachadair/atomicfile v0.2.2/go.mod h1:BRq8Une6ckFneYXZQ+kO7p1ZZP3I2fzVzf28JxrIkBc=
 github.com/creachadair/jhttp v0.0.0-20211028173559-4246475077bb h1:tttGCEHjswR+aa5y2XoRAvEiw6r5xYBjZV0WvAqp4cg=
 github.com/creachadair/jhttp v0.0.0-20211028173559-4246475077bb/go.mod h1:65J0yhuD3EL1u5/63Gn23BJmRuzAaA64wLijV6Pt4AU=
-github.com/creachadair/twitter v0.0.0-20211128061253-1d42904db11d h1:ndBDmiEgtGhRCsD2Gt565UKEz5a7COrr03Q71/4QZ7o=
-github.com/creachadair/twitter v0.0.0-20211128061253-1d42904db11d/go.mod h1:Mt4UiESWn934skey6EofgU1Wj87fdUZ3aR27bbJPeUY=
+github.com/creachadair/twitter v0.0.0-20220109213426-bdad3ce5ed19 h1:fQvf0URT0gxM9J+yT5MjK0Y4XzuKM/rGg9YKfumZDME=
+github.com/creachadair/twitter v0.0.0-20220109213426-bdad3ce5ed19/go.mod h1:Mt4UiESWn934skey6EofgU1Wj87fdUZ3aR27bbJPeUY=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
