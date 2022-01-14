@@ -23,6 +23,7 @@ import (
 	"github.com/creachadair/atomicfile"
 	"github.com/creachadair/jhttp"
 	"github.com/creachadair/twitter"
+	"github.com/creachadair/twitter/query"
 	"github.com/creachadair/twitter/tweets"
 	"github.com/creachadair/twitter/types"
 	yaml "gopkg.in/yaml.v3"
@@ -294,7 +295,20 @@ func limitBeforeToday(d Date, limit time.Duration) Date {
 // TwitterUpdates queries Twitter for episode updates since the specified date.
 // Updates (if any) are returned in order from oldest to newest.
 func TwitterUpdates(ctx context.Context, token string, since Date) ([]*TwitterUpdate, error) {
-	const query = `((from:benjaminwittes ("today on" OR "tonight on" OR "tomorrow on") @inlieuoffunshow) OR (from:inlieuoffunshow crowdcast)) has:links -is:reply -is:retweet`
+	b := query.New()
+	query := b.And(
+		b.Or(
+			b.And(
+				b.From("benjaminwittes"),
+				b.Or(b.Word("today on"), b.Word("tonight on"), b.Word("tomorrow on")),
+				b.Mention("inlieuoffunshow"),
+			),
+			b.And(b.From("inlieuoffunshow"), b.Word("crowdcast")),
+		),
+		b.HasLinks(),
+		b.Not(b.IsReply()),
+		b.Not(b.IsRetweet()),
+	).String()
 
 	// Twitter limits search history to 7 days unless you have research access.
 	// Otherwise, the API will report an error if you try to search earlier.
