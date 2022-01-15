@@ -213,6 +213,9 @@ func createEpisodeFile(path string, num int, desc string, up *ilof.TwitterUpdate
 	if ilof.Similarity(desc, "cheese night") != 0 {
 		ep.AddTag("cheese-night")
 	}
+	if ilof.Similarity(desc, "where's the lie") != 0 {
+		ep.AddTag("truth-from-fiction")
+	}
 	ep.CrowdcastURL = up.Crowdcast
 	ep.YouTubeURL = up.YouTube
 	return ilof.WriteEpisode(path, ep)
