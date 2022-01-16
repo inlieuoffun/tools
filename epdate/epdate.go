@@ -99,7 +99,7 @@ func main() {
 		}
 
 		diff := start.Sub(now)
-		wait := diff / 3
+		wait := diff / 5
 		if wait < 1*time.Minute {
 			wait = 1 * time.Minute
 		}
