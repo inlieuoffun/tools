@@ -89,7 +89,7 @@ func main() {
 		now := time.Now()
 		start := todayStart(now)
 		if isSameDate(time.Time(latestDate), now) {
-			nextWake := nextStartAfter(now).Add(-8 * time.Hour)
+			nextWake := nextStartAfter(now).Add(-16 * time.Hour)
 			diff := nextWake.Sub(now)
 			log.Printf("Next episode is on %s; sleeping for %v (until %s)...",
 				nextWake.Format("2006-01-02"), diff.Round(1*time.Minute),
