@@ -343,6 +343,7 @@ func TwitterUpdates(ctx context.Context, token string, since Date) ([]*TwitterUp
 	var ups []*TwitterUpdate
 	for _, tw := range rsp.Tweets {
 		up := &TwitterUpdate{
+			TweetID: tw.ID,
 			Date:    time.Time(*tw.CreatedAt),
 			AirDate: time.Time(*tw.CreatedAt),
 		}
@@ -433,6 +434,7 @@ func YouTubeVideoID(s string) (string, bool) {
 // A TwitterUpdate reports data extracted from an episode announcement status
 // on Twitter.
 type TwitterUpdate struct {
+	TweetID   string    // the ID of the announcement tweet
 	Date      time.Time // the date of the announcement
 	AirDate   time.Time // the speculated air date
 	YouTube   string    // if available, the YouTube stream link

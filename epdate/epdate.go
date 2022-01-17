@@ -146,8 +146,8 @@ func checkForUpdate(ctx context.Context, token, apiKey string) (ilof.Date, bool)
 		epPath := filepath.Join(episodeDir, epFile)
 		exists := fileExists(epPath)
 
-		log.Printf("Update %d: episode %d, posted %s, air %s, exists=%v",
-			i+1, epNum, up.Date.In(time.Local).Format(time.RFC822),
+		log.Printf("Update %d: episode %d, id %s, posted %s, air %s, exists=%v",
+			i+1, epNum, up.TweetID, up.Date.In(time.Local).Format(time.RFC822),
 			up.AirDate.In(time.Local).Format("2006-01-02"), exists)
 		if exists && !*doForce {
 			continue
