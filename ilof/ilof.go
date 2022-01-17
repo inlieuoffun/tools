@@ -300,7 +300,7 @@ func TwitterUpdates(ctx context.Context, token string, since Date) ([]*TwitterUp
 		b.Or(
 			b.And(
 				b.From("benjaminwittes"),
-				b.Or(b.Word("today on"), b.Word("tonight on"), b.Word("tomorrow on")),
+				b.Some("today on", "tonight on", "tomorrow on"),
 				b.Mention("inlieuoffunshow"),
 			),
 			b.And(b.From("inlieuoffunshow"), b.Word("crowdcast")),
