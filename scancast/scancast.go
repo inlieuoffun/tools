@@ -19,7 +19,8 @@ import (
 )
 
 var (
-	doFeed = flag.Bool("json-feed", false, "Print Acast feed as JSON and exit")
+	doFeed    = flag.Bool("json-feed", false, "Print Acast feed as JSON and exit")
+	doMissing = flag.Bool("log-missing", false, "Log episodes missing audio and exit")
 )
 
 func main() {
@@ -32,13 +33,9 @@ func main() {
 	}
 	log.Printf("Loaded %d audio episodes", len(audio))
 	if *doFeed {
-		enc := json.NewEncoder(os.Stdout)
-		enc.SetIndent("", "  ")
-		enc.Encode(struct {
+		mustWriteJSON(struct {
 			E []*ilof.AudioEpisode `json:"episodes"`
-		}{
-			E: audio,
-		})
+		}{E: audio})
 		return
 	}
 
@@ -47,6 +44,19 @@ func main() {
 		log.Fatalf("Loading ILoF episodes: %v", err)
 	}
 	log.Printf("Loaded %d ILoF episodes", len(eps))
+
+	if *doMissing {
+		var missing []*ilof.Episode
+		for _, ep := range eps {
+			if ep.AcastURL == "" {
+				missing = append(missing, ep)
+			}
+		}
+		mustWriteJSON(struct {
+			M []*ilof.Episode `json:"missing"`
+		}{M: missing})
+		return
+	}
 
 	// Episodes that have been updated with acast links have the landing page
 	// link in their AcastURL field. Prune any audio episodes that have already
@@ -71,5 +81,13 @@ func main() {
 		if ep.FileLink != "" {
 			fmt.Printf("audio-file: %s\n", ep.FileLink)
 		}
+	}
+}
+
+func mustWriteJSON(v interface{}) {
+	enc := json.NewEncoder(os.Stdout)
+	enc.SetIndent("", "  ")
+	if err := enc.Encode(v); err != nil {
+		log.Fatalf("Encoding JSON: %v", err)
 	}
 }
