@@ -146,13 +146,9 @@ const dateFormat = "2006-01-02"
 
 func (d Date) String() string { return time.Time(d).Format(dateFormat) }
 
-// UnmarshalJSON decodes a date from a JSON string formatted "2006-01-02".
-func (d *Date) UnmarshalJSON(data []byte) error {
-	var s string
-	if err := json.Unmarshal(data, &s); err != nil {
-		return err
-	}
-	ts, err := time.Parse(dateFormat, s)
+// UnmarshalText decodes a date from a string formatted "2006-01-02".
+func (d *Date) UnmarshalText(data []byte) error {
+	ts, err := time.Parse(dateFormat, string(data))
 	if err != nil {
 		return err
 	}
@@ -170,8 +166,8 @@ func (d *Date) UnmarshalYAML(node *yaml.Node) error {
 	return nil
 }
 
-// MarshalJSON encodes a date as a JSON string.
-func (d Date) MarshalJSON() ([]byte, error) {
+// MarshalText encodes a date as a string (used for JSON).
+func (d Date) MarshalText() ([]byte, error) {
 	return []byte(d.String()), nil
 }
 
