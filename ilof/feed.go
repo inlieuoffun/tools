@@ -1,14 +1,18 @@
 package ilof
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/mmcdole/gofeed"
 	ext "github.com/mmcdole/gofeed/extensions"
+	"golang.org/x/net/html"
+	"golang.org/x/net/html/atom"
 )
 
 // AcastFeedURL is the URL of the Acast RSS feed for ILoF.
@@ -59,15 +63,22 @@ type AudioEpisode struct {
 	Description string        `json:"description,omitempty"`
 	PageLink    string        `json:"pageLink,omitempty"`  // URL of the landing page for this episode
 	FileLink    string        `json:"fileLink,omitempty"`  // URL of the audio file for this episode
+	DescLinks   []string      `json:"descLinks,omitempty"` // URLs embedded in the description
 	Published   time.Time     `json:"published,omitempty"` // when this episode was published
 	Duration    time.Duration `json:"duration,omitempty"`  // episode duration
+	RawDesc     string        `json:"rawDescription,omitempty"`
 }
 
 func newAudioEpisode(show string, item *gofeed.Item) (*AudioEpisode, error) {
 	ep := &AudioEpisode{
 		Title:       item.Title,
+		RawDesc:     item.Description,
 		Description: item.Description,
 		PageLink:    item.Link,
+	}
+	if ps, err := parseHTML(item.Description); err == nil {
+		ep.Description = ps.Text
+		ep.DescLinks = ps.Links
 	}
 
 	// The Link field may not be the actual acast page, so override it with the
@@ -117,4 +128,52 @@ func parseAudioDuration(s string) (time.Duration, error) {
 		dur += time.Duration(z) * timeUnit[i]
 	}
 	return dur, nil
+}
+
+func parseHTML(s string) (*parsedString, error) {
+	tok := html.NewTokenizer(strings.NewReader(s))
+	var links []string
+	var buf bytes.Buffer
+nextToken:
+	for tok.Next() != html.ErrorToken {
+		next := tok.Token()
+		switch next.Type {
+		case html.TextToken:
+			buf.WriteString(next.Data)
+		case html.StartTagToken:
+			if next.DataAtom == atom.A {
+				href, ok := getAttr(next, "href")
+				if ok {
+					links = append(links, href)
+				}
+			}
+		case html.SelfClosingTagToken:
+			// ACast inserts a disclaimer at the end after a <br/> token.
+			break nextToken
+		default:
+			// discard
+		}
+	}
+	if err := tok.Err(); err != nil && err != io.EOF {
+		return nil, err
+	}
+	return &parsedString{
+		Text:  buf.String(),
+		Links: links,
+	}, nil
+}
+
+type parsedString struct {
+	Text  string
+	Links []string
+}
+
+func getAttr(tok html.Token, name string) (string, bool) {
+	name = strings.ToLower(name)
+	for _, attr := range tok.Attr {
+		if strings.ToLower(attr.Key) == name {
+			return attr.Val, true
+		}
+	}
+	return "", false
 }
