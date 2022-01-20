@@ -360,9 +360,11 @@ func TwitterUpdates(ctx context.Context, token string, since Date) ([]*TwitterUp
 			switch u.Host {
 			case "crowdcast.io", "www.crowdcast.io":
 				up.Crowdcast = u.String()
-			case "youtube.com", "www.youtube.com", "youtu.be":
-				cleanURL(u)
-				up.YouTube = u.String()
+			default:
+				yt := cleanURL(u).String()
+				if id, ok := YouTubeVideoID(yt); ok {
+					up.YouTube = fmt.Sprintf("https://www.youtube.com/watch?v=%s", id)
+				}
 			}
 		}
 
@@ -515,10 +517,10 @@ func pickURL(u *types.URL) *url.URL {
 	return nil
 }
 
-func cleanURL(u *url.URL) {
+func cleanURL(u *url.URL) *url.URL {
 	q, err := url.ParseQuery(u.RawQuery)
 	if err != nil {
-		return
+		return u
 	}
 	for key := range q {
 		if key != "v" {
@@ -526,6 +528,7 @@ func cleanURL(u *url.URL) {
 		}
 	}
 	u.RawQuery = q.Encode()
+	return u
 }
 
 func isSameEpisode(u1, u2 *TwitterUpdate) bool {
