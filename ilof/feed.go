@@ -134,6 +134,7 @@ func parseHTML(s string) (*parsedString, error) {
 	tok := html.NewTokenizer(strings.NewReader(s))
 	var links []string
 	var buf bytes.Buffer
+	var depth int
 nextToken:
 	for tok.Next() != html.ErrorToken {
 		next := tok.Token()
@@ -141,15 +142,36 @@ nextToken:
 		case html.TextToken:
 			buf.WriteString(next.Data)
 		case html.StartTagToken:
-			if next.DataAtom == atom.A {
+			switch next.DataAtom {
+			case atom.P:
+				depth++
+			case atom.A:
 				href, ok := getAttr(next, "href")
 				if ok {
 					links = append(links, href)
 				}
+			case atom.Br:
+				buf.WriteString("\n")
+			}
+		case html.EndTagToken:
+			switch next.DataAtom {
+			case atom.P:
+				if depth > 0 {
+					depth--
+					if depth == 0 {
+						buf.WriteString("\n")
+					}
+				}
 			}
 		case html.SelfClosingTagToken:
 			// ACast inserts a disclaimer at the end after a <br/> token.
-			break nextToken
+			// But it also uses breaks in the user-generated part. To tell them
+			// apart, check whether we're inside a paragraph.
+			if depth <= 0 {
+				break nextToken
+			} else {
+				buf.WriteString("\n")
+			}
 		default:
 			// discard
 		}
