@@ -2,6 +2,7 @@ package ilof
 
 import (
 	"math"
+	"regexp"
 	"strings"
 
 	"bitbucket.org/creachadair/stringset"
@@ -27,8 +28,14 @@ func ContainsWord(s, word string) bool {
 	return stringset.Contains(Words(s), strings.ToLower(word))
 }
 
+var punct = regexp.MustCompile(`\W+`)
+
 // Words parses s into a bag of words. Words are separated by whitespace and
 // normalized to lower-case.
 func Words(s string) []string {
-	return strings.Fields(strings.TrimSpace(strings.ToLower(s)))
+	var words []string
+	for _, w := range strings.Fields(strings.TrimSpace(strings.ToLower(s))) {
+		words = append(words, punct.ReplaceAllString(w, ""))
+	}
+	return words
 }
