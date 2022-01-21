@@ -179,8 +179,14 @@ nextToken:
 	if err := tok.Err(); err != nil && err != io.EOF {
 		return nil, err
 	}
+
+	// Clean up whitespace on the ends of lines.
+	var lines []string
+	for _, line := range strings.Split(strings.TrimSpace(buf.String()), "\n") {
+		lines = append(lines, strings.TrimSpace(line))
+	}
 	return &parsedString{
-		Text:  buf.String(),
+		Text:  strings.Join(lines, "\n"),
 		Links: links,
 	}, nil
 }
