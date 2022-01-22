@@ -89,13 +89,7 @@ func main() {
 		now := time.Now()
 		start := todayStart(now)
 		if isSameDate(time.Time(latestDate), now) {
-			diff := nextStartAfter(now).Sub(now)
-			nextWake := now.Add(diff)
-			log.Printf("Next episode is on %s; sleeping for %v (until %s)...",
-				nextWake.Format("2006-01-02"), diff.Round(1*time.Minute),
-				nextWake.In(time.Local).Format(time.Kitchen))
-			time.Sleep(diff)
-			continue
+			start = nextStartAfter(now)
 		}
 
 		diff := start.Sub(now)
@@ -103,8 +97,10 @@ func main() {
 		if wait < 1*time.Minute {
 			wait = 1 * time.Minute
 		}
-		log.Printf("Next episode in %v; sleeping for %v...",
-			diff.Round(1*time.Minute), wait.Round(1*time.Minute))
+		nextWake := now.Add(wait)
+		log.Printf("Next episode is on %s (in %v); sleeping for %v (until %s)...",
+			start.Format("2006-01-02"), diff.Round(1*time.Minute), wait.Round(1*time.Minute),
+			nextWake.In(time.Local).Format(time.Kitchen))
 		time.Sleep(wait)
 	}
 }
