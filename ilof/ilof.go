@@ -16,6 +16,8 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -263,6 +265,32 @@ func AllEpisodes(ctx context.Context) ([]*Episode, error) {
 		return nil, err
 	}
 	return eps.Episodes, nil
+}
+
+var epFileName = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}-.*\.md$`)
+
+// ForEachEpisode calls f for each episode file in the given directory.
+// If f reports an error, the traversal stops and that error is reported to the
+// caller of ForEachEpisode.
+func ForEachEpisode(dir string, f func(path string, ep *Episode) error) error {
+	ls, err := os.ReadDir(dir)
+	if err != nil {
+		return fmt.Errorf("listing episodes: %v", err)
+	}
+	for _, elt := range ls {
+		if elt.IsDir() || !epFileName.MatchString(elt.Name()) {
+			continue // not an episode file
+		}
+		path := filepath.Join(dir, elt.Name())
+		ep, err := LoadEpisode(path)
+		if err != nil {
+			return fmt.Errorf("loading episode file: %v", err)
+		}
+		if err := f(path, ep); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // newTwitter constructs a twitter client wrapper using the given bearer token.
