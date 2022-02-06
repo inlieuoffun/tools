@@ -376,7 +376,7 @@ func TwitterUpdates(ctx context.Context, token string, since Date) ([]*TwitterUp
 		// If the description includes "tomorrow" we'll assume the air date is
 		// one past the posting date.
 		if ContainsWord(tw.Text, "tomorrow") {
-			up.AirDate = up.Date.Add(24 * time.Hour)
+			up.AirDate = up.Date.AddDate(0, 0, 1)
 		}
 
 		// Search URLs for stream links, matched by hostname.
