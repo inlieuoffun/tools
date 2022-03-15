@@ -94,7 +94,9 @@ func main() {
 
 		diff := start.Sub(now)
 		wait := diff / 5
-		if wait < 1*time.Minute {
+		if wait > 1*time.Hour {
+			wait = 1 * time.Hour
+		} else if wait < 1*time.Minute {
 			wait = 1 * time.Minute
 		}
 		nextWake := now.Add(wait)
