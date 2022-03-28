@@ -46,8 +46,10 @@ var (
 )
 
 const (
-	episodeDir = "_episodes"
-	guestFile  = "_data/guests.yaml"
+	episodeDir  = "_episodes"
+	guestFile   = "_data/guests.yaml"
+	minPollTime = 1 * time.Minute
+	maxPollTime = 90 * time.Minute
 )
 
 func main() {
@@ -94,10 +96,10 @@ func main() {
 
 		diff := start.Sub(now)
 		wait := diff / 5
-		if wait > 1*time.Hour {
-			wait = 1 * time.Hour
-		} else if wait < 1*time.Minute {
-			wait = 1 * time.Minute
+		if wait > maxPollTime {
+			wait = maxPollTime
+		} else if wait < minPollTime {
+			wait = minPollTime
 		}
 		nextWake := now.Add(wait)
 		log.Printf("Next episode is on %s (in %v); sleeping for %v (until %s)...",
