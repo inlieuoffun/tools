@@ -104,7 +104,7 @@ func main() {
 
 		now := time.Now()
 		start := todayStart(now)
-		if then := time.Time(latestDate); isSameOrLaterDate(then, now) {
+		if then := time.Time(latestDate); isSameOrLaterDate(then, now) || isPastShowTime(start) {
 			start = nextStartAfter(now)
 		}
 
@@ -298,4 +298,8 @@ func nextStartAfter(now time.Time) time.Time {
 
 func isSameOrLaterDate(now, then time.Time) bool {
 	return now.Format("20060102") >= then.Format("20060102")
+}
+
+func isPastShowTime(showTime time.Time) bool {
+	return time.Now().After(showTime.Add(time.Hour))
 }
