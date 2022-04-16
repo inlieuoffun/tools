@@ -43,7 +43,21 @@ var (
 
 	// The error reported when a video ID is not found in the description.
 	errNoVideoID = errors.New("no video ID found")
+
+	showStartHour int
 )
+
+func init() {
+	tz, err := time.LoadLocation("America/New_York")
+	if err != nil {
+		panic(err)
+	}
+	if time.Now().In(tz).IsDST() {
+		showStartHour = 21
+	} else {
+		showStartHour = 22
+	}
+}
 
 const (
 	episodeDir  = "_episodes"
@@ -90,7 +104,7 @@ func main() {
 
 		now := time.Now()
 		start := todayStart(now)
-		if isSameDate(time.Time(latestDate), now) {
+		if then := time.Time(latestDate); isSameOrLaterDate(then, now) {
 			start = nextStartAfter(now)
 		}
 
@@ -264,23 +278,24 @@ func editFiles(paths []string) error {
 }
 
 func todayStart(now time.Time) time.Time {
-	day := now.Day()
-	wd := now.Weekday()
-	if wd%2 == 0 {
-		day++
+	if isShowDay := now.Weekday()%2 == 1; !isShowDay || now.UTC().Hour() > showStartHour+1 {
+		return nextStartAfter(now)
 	}
-	if wd == time.Saturday {
-		day++ // advance past Sunday
-	}
+
 	// N.B. we rely on the fact that Date normalizes days out of range.
-	return time.Date(now.Year(), now.Month(), day, 22, 0, 0, 0, time.UTC)
+	return time.Date(now.Year(), now.Month(), now.Day(), showStartHour, 0, 0, 0, time.UTC)
 }
 
 func nextStartAfter(now time.Time) time.Time {
-	next := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 1, time.UTC)
-	return todayStart(next)
+	offset := 1
+	if d := now.Weekday(); d >= time.Friday {
+		offset = (8 - int(d))
+	} else if d%2 == 1 {
+		offset++
+	}
+	return time.Date(now.Year(), now.Month(), now.Day()+offset, showStartHour, 0, 0, 0, time.UTC)
 }
 
-func isSameDate(now, then time.Time) bool {
-	return now.Year() == then.Year() && now.Month() == then.Month() && now.Day() == then.Day()
+func isSameOrLaterDate(now, then time.Time) bool {
+	return now.Format("20060102") >= then.Format("20060102")
 }
