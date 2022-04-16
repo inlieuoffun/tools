@@ -31,14 +31,14 @@ import (
 )
 
 var (
-	doDryRun   = flag.Bool("dry-run", false, "Do not create or modify any files")
-	doForce    = flag.Bool("force", false, "Create updates even if the files exist")
-	doEdit     = flag.Bool("edit", false, "Edit new or modified files after update")
-	doPoll     = flag.Bool("poll", false, "Poll for updates")
-	doPollOne  = flag.Bool("poll-one", false, "Poll for a single update")
-	checkVideo = flag.Bool("check-video", true, "Fail if no video ID is found")
-	override   = flag.String("override", "", "Override latest episode with num:date")
-	checkRepo  = flag.String("check-repo", "inlieuoffun.github.io",
+	doDryRun     = flag.Bool("dry-run", false, "Do not create or modify any files")
+	doForce      = flag.Bool("force", false, "Create updates even if the files exist")
+	doEdit       = flag.Bool("edit", false, "Edit new or modified files after update")
+	doPoll       = flag.Bool("poll", false, "Poll for updates")
+	doPollOne    = flag.Bool("poll-one", false, "Poll for a single update")
+	skipVidCheck = flag.Bool("skip-video-check", false, "SKip check for video ID")
+	override     = flag.String("override", "", "Override latest episode with num:date")
+	checkRepo    = flag.String("check-repo", "inlieuoffun.github.io",
 		"Check that working directory matches this repo name")
 
 	// The error reported when a video ID is not found in the description.
@@ -168,7 +168,7 @@ func checkForUpdate(ctx context.Context, token, apiKey string) (ilof.Date, bool)
 		}
 		var desc string
 		if info, err := fetchEpisodeInfo(ctx, up, apiKey); err == errNoVideoID {
-			if *checkVideo {
+			if !*skipVidCheck {
 				log.Print("* No video ID found for this episode; skipping")
 				continue
 			}
