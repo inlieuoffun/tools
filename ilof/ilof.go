@@ -4,7 +4,6 @@
 package ilof
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -485,16 +484,9 @@ func YouTubeVideoInfo(ctx context.Context, id, apiKey string) (*VideoInfo, error
 		return nil, fmt.Errorf("creating request: %w", err)
 	}
 	req.Header.Add("Accept", "application/json")
-	rsp, err := http.DefaultClient.Do(req)
+	bits, err := loadRequest(ctx, req)
 	if err != nil {
 		return nil, err
-	}
-
-	var buf bytes.Buffer
-	io.Copy(&buf, rsp.Body)
-	rsp.Body.Close()
-	if rsp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("requst failed: %s", rsp.Status)
 	}
 
 	var msg struct {
@@ -503,8 +495,8 @@ func YouTubeVideoInfo(ctx context.Context, id, apiKey string) (*VideoInfo, error
 			Snippet *VideoInfo `json:"snippet"`
 		}
 	}
-	if err := json.Unmarshal(buf.Bytes(), &msg); err != nil {
-		return &VideoInfo{Reply: buf.Bytes()}, err
+	if err := json.Unmarshal(bits, &msg); err != nil {
+		return &VideoInfo{Reply: bits}, err
 	}
 	for _, item := range msg.Items {
 		if item.ID == id {
@@ -512,7 +504,7 @@ func YouTubeVideoInfo(ctx context.Context, id, apiKey string) (*VideoInfo, error
 			return item.Snippet, nil
 		}
 	}
-	return &VideoInfo{Reply: buf.Bytes()}, errors.New("id not found")
+	return &VideoInfo{Reply: bits}, errors.New("id not found")
 }
 
 // VideoInfo carries metadata about a YouTube video.

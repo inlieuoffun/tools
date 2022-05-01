@@ -1,7 +1,12 @@
 package ilof
 
 import (
+	"bytes"
+	"context"
+	"fmt"
+	"io"
 	"math"
+	"net/http"
 	"regexp"
 	"strings"
 
@@ -38,4 +43,18 @@ func Words(s string) []string {
 		words = append(words, punct.ReplaceAllString(w, ""))
 	}
 	return words
+}
+
+func loadRequest(ctx context.Context, req *http.Request) ([]byte, error) {
+	rsp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	var buf bytes.Buffer
+	io.Copy(&buf, rsp.Body)
+	rsp.Body.Close()
+	if rsp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("request failed: %s", rsp.Status)
+	}
+	return buf.Bytes(), nil
 }

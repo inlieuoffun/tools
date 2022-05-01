@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/inlieuoffun/tools/ilof"
 )
@@ -53,6 +54,33 @@ func TestVideoInfo(t *testing.T) {
 		t.Fatalf("YouTubeVideoInfo failed: %v", err)
 	}
 	t.Logf("Video %q description:\n>> %s", info.ID, info.Description)
+}
+
+func TestVideoTranscript(t *testing.T) {
+	if !*doManual {
+		t.Skip("Skipping manual test (-manual=false)")
+	}
+
+	//const videoID = "8qvF9EtNdUE"
+	const videoID = "s9vNrZSRUbc"
+	ctx := context.Background()
+	url, err := ilof.YouTubeCaptionURL(ctx, videoID)
+	if err != nil {
+		t.Fatalf("Fetching caption URL for %q failed: %v", videoID, err)
+	} else if url == "" {
+		t.Fatalf("No caption found for %q", videoID)
+	}
+	t.Logf("Caption URL for %q is %s", videoID, url)
+
+	cap, err := ilof.YouTubeCaptionData(ctx, url)
+	if err != nil {
+		t.Fatalf("Fetching caption data: %v", err)
+	}
+
+	for i, elt := range cap.Texts {
+		at := time.Duration(elt.Start) * time.Second
+		t.Logf("[%d]: %v\t%s", i+1, at, elt.Text)
+	}
 }
 
 func TestLatestEpisode(t *testing.T) {
