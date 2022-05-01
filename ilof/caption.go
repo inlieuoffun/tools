@@ -87,14 +87,11 @@ func loadCaptionXML(ctx context.Context, url string) ([]byte, error) {
 // YouTubeCaptionData loads and parses the specified caption URL and returns
 // the resulting caption.
 func YouTubeCaptionData(ctx context.Context, url string) (*Caption, error) {
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	bits, err := loadCaptionXML(ctx, url)
 	if err != nil {
 		return nil, err
 	}
-	bits, err := loadRequest(ctx, req)
-	if err != nil {
-		return nil, err
-	}
+
 	cap := new(Caption)
 	dec := xml.NewDecoder(bytes.NewReader(bits))
 	dec.Entity = xml.HTMLEntity
