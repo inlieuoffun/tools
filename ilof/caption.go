@@ -86,34 +86,42 @@ func loadCaptionXML(ctx context.Context, url string) ([]byte, error) {
 
 // YouTubeCaptionData loads and parses the specified caption URL and returns
 // the resulting caption.
-func YouTubeCaptionData(ctx context.Context, url string) (*Caption, error) {
+func YouTubeCaptionData(ctx context.Context, url string) (*Transcript, error) {
 	bits, err := loadCaptionXML(ctx, url)
 	if err != nil {
 		return nil, err
 	}
 
-	cap := new(Caption)
+	cap := new(xmlCaption)
 	dec := xml.NewDecoder(bytes.NewReader(bits))
 	dec.Entity = xml.HTMLEntity
 	if err := dec.Decode(cap); err != nil {
 		return nil, fmt.Errorf("decoding XML: %w", err)
 	}
-	for i := range cap.Texts {
-		decodeEntities(&cap.Texts[i].Text)
+	for _, c := range cap.Captions {
+		c.Text = html.UnescapeString(c.Text)
 	}
-	return cap, nil
+	return &Transcript{
+		CaptionsURL: url,
+		Captions:    cap.Captions,
+	}, nil
 }
 
+// Transcript is the decoded format of a set of video captions.
+type Transcript struct {
+	VideoID     string     `json:"videoID"`
+	CaptionsURL string     `json:"captionsURL"`
+	Captions    []*Caption `json:"captions"`
+}
+
+type xmlCaption struct {
+	XMLName  xml.Name   `xml:"transcript"` // <transcript> ... </transcript>
+	Captions []*Caption `xml:"text"`       // <text start="x" dur="y"> ... </text>
+}
+
+// Caption is a single text caption.
 type Caption struct {
-	XMLName xml.Name      `xml:"transcript"`
-	Texts   []CaptionText `xml:"text"`
+	Start    float64 `xml:"start,attr" json:"startSec"`  // seconds since start
+	Duration float64 `xml:"dur,attr" json:"durationSec"` // seconds duration
+	Text     string  `xml:",chardata" json:"text"`       // decoded text
 }
-
-// <text start="3285.28" dur="4.88">surprised you with how they comport</text>
-type CaptionText struct {
-	Start    float64 `xml:"start,attr"`
-	Duration float64 `xml:"dur,attr"`
-	Text     string  `xml:",chardata"`
-}
-
-func decodeEntities(s *string) { *s = html.UnescapeString(*s) }

@@ -77,7 +77,7 @@ func TestVideoTranscript(t *testing.T) {
 		t.Fatalf("Fetching caption data: %v", err)
 	}
 
-	for i, elt := range cap.Texts {
+	for i, elt := range cap.Captions {
 		at := time.Duration(elt.Start) * time.Second
 		t.Logf("[%d]: %v\t%s", i+1, at, elt.Text)
 	}
