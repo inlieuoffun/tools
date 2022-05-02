@@ -7,6 +7,8 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 
 	"github.com/inlieuoffun/tools/ilof"
 )
@@ -15,6 +17,35 @@ var (
 	videoID = flag.String("id", "", "Video ID to fetch")
 	episode = flag.String("episode", "", "Episode number")
 )
+
+func init() {
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, `Usage: %[1]s -id <video-id>
+       %[1]s -episode <episode-id>
+
+Fetch text captions for a YouTube video. Either the -id of the video
+must be specified directly, or the -episode whose video URL is to be
+fetched.
+
+Output is written to stdout as JSON:
+
+  {
+    "transcript": {
+      "videoID": "<video-id>",
+      "captionsURL": "<captions-url>",
+      "captions": [{
+         "startSec": 123.4,
+         "durationSec": 5.6,
+         "text": "... text of transcription segment ..."
+      }, ...]
+    }
+  }
+
+Options:
+`, filepath.Base(os.Args[0]))
+		flag.PrintDefaults()
+	}
+}
 
 func main() {
 	flag.Parse()
