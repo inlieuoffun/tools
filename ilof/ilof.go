@@ -246,6 +246,26 @@ func LatestEpisode(ctx context.Context) (*Episode, error) {
 	return ep.Latest, nil
 }
 
+// FetchEpisode queries the site for the specified episode.
+func FetchEpisode(ctx context.Context, num string) (*Episode, error) {
+	rsp, err := http.Get(fmt.Sprintf("%s/episode/%s.json", BaseURL, num))
+	if err != nil {
+		return nil, err
+	}
+	body, err := io.ReadAll(rsp.Body)
+	rsp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+	var ep struct {
+		*Episode `json:"episode"`
+	}
+	if err := json.Unmarshal(body, &ep); err != nil {
+		return nil, err
+	}
+	return ep.Episode, nil
+}
+
 // AllEpisodes queries the site for all episodes.
 func AllEpisodes(ctx context.Context) ([]*Episode, error) {
 	rsp, err := http.Get(BaseURL + "/episodes.json")
