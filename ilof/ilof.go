@@ -232,6 +232,9 @@ func LatestEpisode(ctx context.Context) (*Episode, error) {
 	if err != nil {
 		return nil, err
 	}
+	if rsp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("request failed: %s", rsp.Status)
+	}
 	body, err := io.ReadAll(rsp.Body)
 	rsp.Body.Close()
 	if err != nil {
