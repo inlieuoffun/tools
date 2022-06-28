@@ -4,12 +4,12 @@ go 1.17
 
 require (
 	bitbucket.org/creachadair/stringset v0.0.10
-	github.com/creachadair/atomicfile v0.2.5
-	github.com/creachadair/jhttp v0.0.0-20211028173559-4246475077bb
-	github.com/creachadair/twitter v0.0.0-20220417194317-a5519f7cd264
+	github.com/creachadair/atomicfile v0.2.6
+	github.com/creachadair/jhttp v0.0.0-20220426155725-42d8ba9f2669
+	github.com/creachadair/twitter v0.0.0-20220518141024-5a40bfbe2cfd
 	github.com/mmcdole/gofeed v1.1.3
-	golang.org/x/net v0.0.0-20220412020605-290c469a71a5
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
