@@ -4,7 +4,7 @@ package ilof
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"regexp"
 	"sort"
 	"strings"
@@ -58,7 +58,7 @@ func AddOrUpdateGuests(episode float64, path string, guests []*Guest) error {
 		return nil
 	}
 
-	data, err := ioutil.ReadFile(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}

@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"math"
 	"net/http"
@@ -185,7 +184,7 @@ type Link struct {
 
 // LoadEpisode loads an episode from the markdown file at path.
 func LoadEpisode(path string) (*Episode, error) {
-	data, err := ioutil.ReadFile(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
