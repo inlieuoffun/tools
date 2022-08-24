@@ -1,6 +1,6 @@
 module github.com/inlieuoffun/tools
 
-go 1.17
+go 1.18
 
 require (
 	bitbucket.org/creachadair/stringset v0.0.10
