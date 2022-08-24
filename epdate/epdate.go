@@ -109,7 +109,7 @@ func main() {
 		}
 
 		diff := start.Sub(now)
-		wait := diff / 5
+		wait := diff / 7
 		if wait > maxPollTime {
 			wait = maxPollTime
 		} else if wait < minPollTime {
