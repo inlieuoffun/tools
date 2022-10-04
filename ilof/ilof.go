@@ -362,7 +362,7 @@ func TwitterUpdates(ctx context.Context, token string, since Date) ([]*TwitterUp
 	// Otherwise, the API will report an error if you try to search earlier.
 	// This means we could miss posts if we don't check often enough, but as
 	// long as we check once in every 7-day window we should be OK.
-	since = limitBeforeToday(since, 7*24*time.Hour)
+	since = limitBeforeToday(since, 6*24*time.Hour+20*time.Hour)
 
 	// If since corresponds to an air time in the future, there are no further
 	// episodes to find. This check averts an error from the API.
