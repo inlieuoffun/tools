@@ -56,7 +56,6 @@ var KnownUsers = map[string]bool{
 type Episode struct {
 	Episode      Label    `json:"episode"`
 	Date         Date     `json:"airDate" yaml:"date"`
-	Season       int      `json:"season,omitempty" yaml:"season,omitempty"`
 	Guests       []string `json:"guestNames,omitempty" yaml:"-"`
 	Topics       string   `json:"topics,omitempty" yaml:"topics,omitempty"`
 	CrowdcastURL string   `json:"crowdcastURL,omitempty" yaml:"crowdcast,omitempty"`
