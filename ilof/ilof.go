@@ -21,8 +21,8 @@ import (
 	"time"
 
 	"github.com/creachadair/atomicfile"
-	"github.com/creachadair/jhttp"
 	"github.com/creachadair/twitter"
+	"github.com/creachadair/twitter/jape"
 	"github.com/creachadair/twitter/query"
 	"github.com/creachadair/twitter/tweets"
 	"github.com/creachadair/twitter/types"
@@ -318,13 +318,13 @@ func ForEachEpisode(dir string, f func(path string, ep *Episode) error) error {
 
 // newTwitter constructs a twitter client wrapper using the given bearer token.
 func newTwitter(token string) *twitter.Client {
-	cli := twitter.NewClient(&jhttp.Client{
-		Authorize: jhttp.BearerTokenAuthorizer(token),
+	cli := twitter.NewClient(&jape.Client{
+		Authorize: jape.BearerTokenAuthorizer(token),
 	})
 	v, err := strconv.Atoi(os.Getenv("TWITTER_DEBUG"))
 	if err == nil && v > 0 {
-		cli.Log = func(tag jhttp.LogTag, msg string) { log.Printf("DEBUG :: %s | %s", tag, msg) }
-		cli.LogMask = jhttp.LogTag(v)
+		cli.Log = func(tag jape.LogTag, msg string) { log.Printf("DEBUG :: %s | %s", tag, msg) }
+		cli.LogMask = jape.LogTag(v)
 	}
 	return cli
 }
